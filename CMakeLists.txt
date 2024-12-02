@@ -1,0 +1,64 @@
+cmake_minimum_required(VERSION 3.25)
+project(proj3)
+
+set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_SHARED_LIBRARY_PREFIX "")
+if(${CMAKE_COMPILER_IS_GNUCXX})
+    list(APPEND CMAKE_CXX_FLAGS "-g -rdynamic -fno-pie -no-pie -fno-gnu-unique -fexceptions -fnon-call-exceptions")
+    message("CMAKE_CXX_FLAGS: ${CMAKE_CXX_FLAGS}")
+elseif(MSVC)
+    add_compile_options("$<$<C_COMPILER_ID:MSVC>:/utf-8>")
+    add_compile_options("$<$<CXX_COMPILER_ID:MSVC>:/utf-8>")
+
+    if(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
+        set(CXX_COMPILER_FLAGS "${CMAKE_CXX_FLAGS_DEBUG} /Od")
+
+        set(C_COMPILER_FLAGS "${CMAKE_C_FLAGS_DEBUG} /Od")
+    endif()
+
+    if(${CMAKE_BUILD_TYPE} STREQUAL "Release")
+        set(CXX_COMPILER_FLAGS "${CMAKE_CXX_FLAGS_RELEASE} /O2")
+
+        set(C_COMPILER_FLAGS "${CMAKE_C_FLAGS_RELEASE} /O2")
+    endif()
+
+    foreach(CompilerFlag ${CXX_COMPILER_FLAGS})
+        string(REPLACE "/MD" "/MT" ${CompilerFlag} "${${CompilerFlag}}")
+    endforeach()
+
+    foreach(CompilerFlag ${C_COMPILER_FLAGS})
+        string(REPLACE "/MD" "/MT" ${CompilerFlag} "${${CompilerFlag}}")
+    endforeach()
+
+    message("CXX compiler flags: ${CXX_COMPILER_FLAGS}, C compiler flags: ${C_COMPILER_FLAGS}")
+
+    set(CMAKE_CXX_FLAGS ${CXX_COMPILER_FLAGS})
+    set(CMAKE_C_FLAGS ${C_COMPILER_FLAGS})
+
+    set(MSVC_RUNTIME "dynamic")
+    set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
+endif()
+
+add_definitions(-DBOOST_STACKTRACE_USE_ADDR2LINE)
+add_definitions(-DBOOST_STACKTRACE_USE_BACKTRACE)
+add_definitions(-DNOMINMAX)
+add_definitions(-DBUILD_CTL=ON)
+
+file(GLOB_RECURSE COMMON_SOURCES common/*.cpp common/*.h)
+
+file(GLOB_RECURSE SG_CURRENT_PLUGIN_GENERATED_FILES .SG_GENERATED/*.h .SG_GENERATED/*.cpp)
+file(GLOB_RECURSE MY_SOURCES Sources/*.cpp Sources/*.h)
+include($ENV{SUNGEAR_SOURCES_ROOT}/cmake/SungearEngineInclude.cmake)
+#include($ENV{SUNGEAR_SOURCES_ROOT}/Plugins/SungearEngineEditor/cmake/include_as_plugin.cmake)
+
+find_package(PostgreSQL REQUIRED)
+find_package(Drogon CONFIG REQUIRED)
+
+add_subdirectory(server)
+
+message(${COMMON_SOURCES})
+
+add_executable(${PROJECT_NAME} ${MY_SOURCES} ${COMMON_SOURCES})
+
+target_include_directories(${PROJECT_NAME} PRIVATE common Sources ${SungearEngine_INCLUDE_DIRS})
+target_link_libraries(${PROJECT_NAME} PUBLIC ${SungearEngine_LIBS} Drogon::Drogon PostgreSQL::PostgreSQL)

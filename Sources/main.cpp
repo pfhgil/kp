@@ -44,7 +44,7 @@ void Main::init() noexcept
     Client::start();
 
     ImGui::SetCurrentContext(SGCore::ImGuiWrap::ImGuiLayer::getCurrentContext());
-    PathInterpolationMarkup::getGlobalMarkup()["projectPath"] = "D:/Pixelfield/NativeSungearEngine/NativeSungearEngine/Projects/proj3";
+    PathInterpolationMarkup::getGlobalMarkup()["projectPath"] = "F:/Pixelfield/kp4";
 
     SGE::StylesManager::init();
 

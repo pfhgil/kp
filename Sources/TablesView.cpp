@@ -6,6 +6,7 @@
 #include "TablesView.h"
 #include "Models/Storage.h"
 #include "Client.h"
+#include <coroutine>
 
 TablesView::TablesView() noexcept
 {
@@ -82,6 +83,46 @@ void TablesView::reloadAllTables() noexcept
     reloadTable(TableType::ITEMS);
     reloadTable(TableType::ORDERS);
     reloadTable(TableType::PROVIDERS);
+}
+
+void TablesView::deleteSelectedRows() noexcept
+{
+    auto& tableSelectedRowsMapping = m_selectedRows[static_cast<int>(m_tableType)];
+    switch (m_tableType)
+    {
+        case TableType::STAFF:
+        {
+            for(const auto& row : tableSelectedRowsMapping)
+            {
+                if(row.second) Client::deleteWorkerByID(row.first);
+            }
+            m_workers = Client::getAllWorkers().get();
+            break;
+        }
+        case TableType::OFFS:
+            break;
+        case TableType::STORAGES:
+        {
+            for(const auto& row : tableSelectedRowsMapping)
+            {
+                if(row.second) Client::deleteStorageByID(row.first);
+            }
+            m_storages = Client::getAllStorages().get();
+            break;
+        }
+        case TableType::SHIPMENTS:
+            break;
+        case TableType::ITEM_TYPE_INFO:
+            break;
+        case TableType::ITEMS:
+            break;
+        case TableType::ORDERS:
+            break;
+        case TableType::PROVIDERS:
+            break;
+    }
+
+    tableSelectedRowsMapping.clear();
 }
 
 void TablesView::drawStaffTable() noexcept

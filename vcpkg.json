@@ -61,8 +61,8 @@
     "platform": "linux"
   }, {
     "name" : "drogon",
-    "version>=" : "1.9.3",
-    "features": [ "postgres", "orm", "ctl" ]
+    "version>=" : "1.9.5",
+    "features": [ "postgres" ]
   }, {
      "name": "libpq",
      "version>=" : "16.0#2"

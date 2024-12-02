@@ -7,7 +7,7 @@
 
 void Client::start() noexcept
 {
-    s_httpClient = drogon::HttpClient::newHttpClient("http://127.0.0.1:3000");
+    s_httpClient = drogon::HttpClient::newHttpClient("http://127.0.0.1:3456");
 
     s_clientThread = SGCore::Threading::Thread::create();
     auto task = SGCore::MakeRef<SGCore::Threading::Task>();
@@ -26,6 +26,23 @@ void Client::addWorker(const Worker& value) noexcept
     req->setPath("/add_worker");
     req->setMethod(drogon::HttpMethod::Post);
 
+    s_httpClient->sendRequest(req, [](drogon::ReqResult result, const drogon::HttpResponsePtr& response) {
+        if (result == drogon::ReqResult::Ok)
+        {
+            std::cout << "Response received: " << response->body() << ", status: " << response->getStatusCode() << std::endl;
+        }
+        else
+        {
+            std::cerr << "Request failed, error code: " << static_cast<int>(result) << std::endl;
+        }
+    });
+}
+
+void Client::deleteWorkerByID(const int32_t& id) noexcept
+{
+    auto req = drogon::HttpRequest::newHttpRequest();
+    req->setPath("/workers/" + std::to_string(id));
+    req->setMethod(drogon::HttpMethod::Delete);
     s_httpClient->sendRequest(req, [](drogon::ReqResult result, const drogon::HttpResponsePtr& response) {
         if (result == drogon::ReqResult::Ok)
         {
@@ -60,6 +77,7 @@ std::future<std::vector<Worker>> Client::getAllWorkers() noexcept
         else
         {
             std::cerr << "Request failed, error code: " << static_cast<int>(result) << std::endl;
+            valuePromise->set_value({ });
         }
     });
 
@@ -86,6 +104,23 @@ void Client::addStorage(const Storage& value) noexcept
     });
 }
 
+void Client::deleteStorageByID(const int32_t& id) noexcept
+{
+    auto req = drogon::HttpRequest::newHttpRequest();
+    req->setPath("/storages/" + std::to_string(id));
+    req->setMethod(drogon::HttpMethod::Delete);
+    s_httpClient->sendRequest(req, [](drogon::ReqResult result, const drogon::HttpResponsePtr& response) {
+        if (result == drogon::ReqResult::Ok)
+        {
+            std::cout << "Response received: " << response->body() << ", status: " << response->getStatusCode() << std::endl;
+        }
+        else
+        {
+            std::cerr << "Request failed, error code: " << static_cast<int>(result) << std::endl;
+        }
+    });
+}
+
 std::future<std::vector<Storage>> Client::getAllStorages() noexcept
 {
     auto req = drogon::HttpRequest::newHttpRequest();
@@ -95,7 +130,7 @@ std::future<std::vector<Storage>> Client::getAllStorages() noexcept
     auto valuePromise = std::make_shared<std::promise<std::vector<Storage>>>();
     auto valueFuture = valuePromise->get_future();
 
-    s_httpClient->sendRequest(req, [valuePromise](drogon::ReqResult result, const drogon::HttpResponsePtr& response)  {
+    s_httpClient->sendRequest(req, [valuePromise](drogon::ReqResult result, const drogon::HttpResponsePtr& response) {
         if (result == drogon::ReqResult::Ok)
         {
             std::vector<Storage> storages;
@@ -108,6 +143,7 @@ std::future<std::vector<Storage>> Client::getAllStorages() noexcept
         else
         {
             std::cerr << "Request failed, error code: " << static_cast<int>(result) << std::endl;
+            valuePromise->set_value({});
         }
     });
 

@@ -24,6 +24,8 @@ struct TablesView : public SGCore::ImGuiWrap::IView
     void reloadTable(TableType tableType) noexcept;
     void reloadAllTables() noexcept;
 
+    void deleteSelectedRows() noexcept;
+
 private:
     std::string m_error;
 

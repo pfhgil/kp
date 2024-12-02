@@ -142,6 +142,10 @@ SGE::TopToolbarView::TopToolbarView()
                 case TableType::PROVIDERS:break;
             }
         }
+        else if(element->m_ID == "Edit/DeleteRow")
+        {
+            Main::getMainView()->getTablesView()->deleteSelectedRows();
+        }
         else if(element->m_ID == "Edit/ReloadTable")
         {
             Main::getMainView()->getTablesView()->reloadTable(Main::getMainView()->getTablesView()->m_tableType);

@@ -8,10 +8,14 @@ MainView::MainView() noexcept
     m_toolbarView = SGCore::MakeRef<SGE::TopToolbarView>();
     m_toolbarView->m_name = "TOOLBAR";
 
+    m_loginWindow = SGCore::MakeRef<LoginWindow>();
+    m_loginWindow->m_name = "LOGIN_WND";
+
     m_tablesView = SGCore::MakeRef<TablesView>();
     m_tablesView->m_name = "TABLES";
 
     addChild(m_tablesView);
+    addChild(m_loginWindow);
     addChild(m_toolbarView);
 }
 

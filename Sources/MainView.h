@@ -8,6 +8,7 @@
 #include <SGCore/ImGuiWrap/Views/IView.h>
 #include "SGE/TopToolbarView.h"
 #include "TablesView.h"
+#include "LoginWindow.h"
 
 struct MainView : SGCore::ImGuiWrap::IView
 {
@@ -22,6 +23,7 @@ private:
 
     SGCore::Ref<SGE::TopToolbarView> m_toolbarView;
     SGCore::Ref<TablesView> m_tablesView;
+    SGCore::Ref<LoginWindow> m_loginWindow;
 };
 
 #endif //PROJ3_MAINVIEW_H

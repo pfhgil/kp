@@ -23,9 +23,13 @@ struct Client
     static void deleteStorageByID(const std::int32_t& id) noexcept;
     [[nodiscard]] static std::future<std::vector<Storage>> getAllStorages() noexcept;
 
+    static void auth(const std::string& login, const std::string& password) noexcept;
+
 private:
     static inline SGCore::Ref<SGCore::Threading::Thread> s_clientThread;
     static inline std::shared_ptr<drogon::HttpClient> s_httpClient;
+
+    static inline std::string s_jwtToken;
 };
 
 #endif //PROJ3_CLIENT_H

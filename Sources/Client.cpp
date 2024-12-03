@@ -149,3 +149,31 @@ std::future<std::vector<Storage>> Client::getAllStorages() noexcept
 
     return valueFuture;
 }
+
+void Client::auth(const std::string& login, const std::string& password) noexcept
+{
+    Json::Value json;
+    json["login"] = login;
+    json["password"] = password;
+
+    auto req = drogon::HttpRequest::newHttpJsonRequest(json);
+    req->setPath("/auth");
+    req->setMethod(drogon::HttpMethod::Get);
+
+    s_httpClient->sendRequest(req, [](drogon::ReqResult result, const drogon::HttpResponsePtr& response) {
+        if (result == drogon::ReqResult::Ok)
+        {
+            auto jsonObj = response->getJsonObject();
+
+            if(jsonObj)
+            {
+                s_jwtToken = (*jsonObj).isMember("token") ? (*jsonObj)["token"].asString() : "";
+            }
+            std::cout << "Auth response: " << response->body() << ", status: " << response->getStatusCode() << std::endl;
+        }
+        else
+        {
+            std::cerr << "Request failed, error code: " << static_cast<int>(result) << std::endl;
+        }
+    });
+}

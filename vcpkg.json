@@ -66,5 +66,9 @@
   }, {
      "name": "libpq",
      "version>=" : "16.0#2"
+  }, {
+     "name": "jwt-cpp"
+  }, {
+     "name": "openssl"
   }]
 }

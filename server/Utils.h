@@ -12,6 +12,21 @@
 
 struct Utils
 {
+    using callback_t = std::function<void(const drogon::HttpResponsePtr&)>;
+
+    template<typename T>
+    static void sendResponse(const T& message, drogon::HttpStatusCode statusCode,
+                             const callback_t& callback, const std::string& column = "message") noexcept
+    {
+        Json::Value jsonBody;
+
+        jsonBody[column] = message;
+
+        auto response = drogon::HttpResponse::newHttpJsonResponse(jsonBody);
+        response->setStatusCode(statusCode);
+        callback(response);
+    }
+
     [[nodiscard]] static std::string generateJWT(const Worker& worker)
     {
         auto token = jwt::create()
@@ -24,7 +39,7 @@ struct Utils
         return token;
     }
 
-    static bool validateJWT(const std::string& token, Worker& worker)
+    static bool validateJWT(const std::string& token, Worker* worker)
     {
         try
         {
@@ -34,8 +49,11 @@ struct Utils
                     .verify(jwt::decode(token));
 
             std::string deserLog;
-            // берём пользователя из токена
-            SGCore::Serde::Serializer::fromFormat(jwt::decode(token).get_subject(), worker, deserLog);
+            if(worker)
+            {
+                // берём пользователя из токена
+                SGCore::Serde::Serializer::fromFormat(jwt::decode(token).get_subject(), *worker, deserLog);
+            }
 
             return true;
         }
@@ -62,7 +80,7 @@ struct Utils
 
             Worker worker;
 
-            if (validateJWT(token, worker))
+            if (validateJWT(token, &worker))
             {
                 // req->attributes()->insert("username", username); // Сохраняем имя пользователя
                 next(); // Передаем управление следующему обработчику

@@ -3,12 +3,15 @@
 //
 
 #include "LoginWindow.h"
+#include "Client.h"
 #include <SGCore/Input/InputManager.h>
+#include <imgui_stdlib.h>
+#include "main.h"
 
 LoginWindow::LoginWindow() noexcept
 {
     m_isPopupWindow = true;
-    m_bodyMinSize = { 350.0f, 100.0f };
+    m_bodyMinSize = { 350.0f, 75.0f };
 
     addButton({
                       .m_text = "OK",
@@ -42,12 +45,45 @@ LoginWindow::LoginWindow() noexcept
 
 void LoginWindow::renderBody() noexcept
 {
+    if(ImGui::BeginTable((m_name.getName() + "_Table").c_str(), 2, ImGuiTableFlags_SizingStretchProp))
+    {
+        ImGui::TableNextRow();
+        {
+            ImGui::TableNextColumn();
+            ImGui::Text("Login");
 
+            ImGui::TableNextColumn();
+            ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 7);
+            ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
+            ImGui::InputText("##Login", &m_currentLogin);
+        }
+
+        ImGui::TableNextRow();
+        {
+            ImGui::TableNextColumn();
+            ImGui::Text("Password");
+
+            ImGui::TableNextColumn();
+            ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 7);
+            ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
+            ImGui::InputText("##Password", &m_currentPassword);
+        }
+
+        ImGui::EndTable();
+    }
+}
+
+void LoginWindow::footerRender() noexcept
+{
+    if(!m_errorMessage.empty())
+    {
+        ImGui::TextColored(ImVec4(1, 0, 0, 1), m_errorMessage.c_str());
+    }
 }
 
 void LoginWindow::onActiveChangedListener() noexcept
 {
-    if(!isActive())
+    if(!isActive() && !Client::isAuthValid(Client::getJWTToken()).get())
     {
         quit();
     }
@@ -55,7 +91,16 @@ void LoginWindow::onActiveChangedListener() noexcept
 
 void LoginWindow::submit() noexcept
 {
-
+    Client::auth(m_currentLogin, std::to_string(SGCore::hashString(m_currentPassword)));
+    if(Client::isAuthValid(Client::getJWTToken()).get())
+    {
+        setActive(false);
+        Main::getMainView()->getTablesView()->reloadAllTables();
+    }
+    else
+    {
+        m_errorMessage = "Incorrect login or password";
+    }
 }
 
 void LoginWindow::quit() noexcept

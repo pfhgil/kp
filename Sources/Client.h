@@ -18,12 +18,17 @@ struct Client
     static void addWorker(const Worker& value) noexcept;
     static void deleteWorkerByID(const std::int32_t& id) noexcept;
     [[nodiscard]] static std::future<std::vector<Worker>> getAllWorkers() noexcept;
+    [[nodiscard]] static std::future<Worker> getWorkerByLogin(const std::string& login) noexcept;
 
     static void addStorage(const Storage& value) noexcept;
     static void deleteStorageByID(const std::int32_t& id) noexcept;
+    static std::future<Storage> getStorageByID(const std::int32_t& id) noexcept;
     [[nodiscard]] static std::future<std::vector<Storage>> getAllStorages() noexcept;
 
     static void auth(const std::string& login, const std::string& password) noexcept;
+    static std::future<bool> isAuthValid(const std::string& token) noexcept;
+
+    static const std::string& getJWTToken() noexcept;
 
 private:
     static inline SGCore::Ref<SGCore::Threading::Thread> s_clientThread;

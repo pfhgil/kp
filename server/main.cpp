@@ -5,7 +5,8 @@
 #include <drogon/HttpAppFramework.h>
 #include <drogon/HttpController.h>
 #include <jwt-cpp/jwt.h>
-#include "Controller.h"
+#include "Controllers/StaffController.h"
+#include "Controllers/StoragesController.h"
 
 #include "Utils.h"
 #include "SerdeSpecs.h"
@@ -19,6 +20,8 @@ int main()
 
     // drogon::app().setDb
     drogon::app()
+            .registerController(std::make_shared<api::staff>())
+            .registerController(std::make_shared<api::storages>())
             .setLogLevel(trantor::Logger::LogLevel::kTrace)
             /*.registerHandler("/add_worker", &addWorkerHandler, { drogon::Post })
             .registerHandler("/add_storage", &addStorageHandler, { drogon::Post })

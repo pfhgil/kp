@@ -116,11 +116,7 @@ SGE::TopToolbarView::TopToolbarView()
             {
                 case TableType::STAFF:
                 {
-                    Client::addWorker({
-                        .m_name = "guest",
-                    });
-
-                    Main::getMainView()->getTablesView()->reloadTable(TableType::STAFF);
+                    Main::getMainView()->getTablesView()->getUpdateWorkerWindow()->setActive(true);
 
                     break;
                 }

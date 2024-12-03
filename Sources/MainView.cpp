@@ -9,7 +9,7 @@ MainView::MainView() noexcept
     m_toolbarView->m_name = "TOOLBAR";
 
     m_loginWindow = SGCore::MakeRef<LoginWindow>();
-    m_loginWindow->m_name = "LOGIN_WND";
+    m_loginWindow->m_name = "Login";
 
     m_tablesView = SGCore::MakeRef<TablesView>();
     m_tablesView->m_name = "TABLES";

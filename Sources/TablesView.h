@@ -9,6 +9,8 @@
 #include "TableType.h"
 #include "Models/Storage.h"
 #include "Models/Worker.h"
+#include "Update/UpdateWorkerWindow.h"
+#include "SGE/Popup.h"
 
 struct TablesView : public SGCore::ImGuiWrap::IView
 {
@@ -26,11 +28,20 @@ struct TablesView : public SGCore::ImGuiWrap::IView
 
     void deleteSelectedRows() noexcept;
 
+    [[nodiscard]] auto getUpdateWorkerWindow() const noexcept
+    {
+        return m_updateWorkerWindow;
+    }
+
 private:
     std::string m_error;
 
     // every element in vector is map for every table type. in map: first - id of record
     std::vector<std::unordered_map<std::int32_t, bool>> m_selectedRows;
+
+    SGCore::Ref<UpdateWorkerWindow> m_updateWorkerWindow;
+
+    SGE::Popup m_rowPopup;
 
     void drawStaffTable() noexcept;
     void drawStoragesTable() noexcept;

@@ -10,6 +10,23 @@
 
 TablesView::TablesView() noexcept
 {
+    m_rowPopup = SGE::Popup {
+            "TableRowActions",
+            {
+                    {
+                            .m_text = "Edit Row",
+                            .m_ID = "EditRow",
+                            .m_icon = SGE::StylesManager::getCurrentStyle()->m_pencilIcon->getSpecialization(18,
+                                                                                                             18)->getTexture()
+                    }
+            }
+    };
+
+    m_updateWorkerWindow = SGCore::MakeRef<UpdateWorkerWindow>();
+    m_updateWorkerWindow->setActive(false);
+
+    addChild(m_updateWorkerWindow);
+
     m_selectedRows.resize(static_cast<int>(TableType::COUNT));
 
     reloadAllTables();
@@ -17,6 +34,8 @@ TablesView::TablesView() noexcept
 
 void TablesView::renderBody() noexcept
 {
+    m_rowPopup.draw();
+
     ImGuiWindowClass windowClass;
     windowClass.DockNodeFlagsOverrideSet = ImGuiDockNodeFlags_AutoHideTabBar;
     ImGui::SetNextWindowClass(&windowClass);
@@ -176,6 +195,11 @@ void TablesView::drawStaffTable() noexcept
                 }
             }
 
+            if(ImGui::IsItemClicked(ImGuiMouseButton_Right))
+            {
+                m_rowPopup.setOpened(true);
+            }
+
             ImGui::SameLine();
             ImGui::Text(std::to_string(record.m_id).c_str());
 
@@ -226,7 +250,7 @@ void TablesView::drawStoragesTable() noexcept
             ImGui::TableNextRow();
             ImGui::TableNextColumn();
 
-            ImGui::PushID(record.m_id);
+            ImGui::PushID(("StoragesRow" + std::to_string(record.m_id)).c_str());
 
             auto& currentSelectedRowsMap = m_selectedRows[static_cast<int>(m_tableType)];
             auto& isSelected = currentSelectedRowsMap[record.m_id];
@@ -248,6 +272,11 @@ void TablesView::drawStoragesTable() noexcept
                     currentSelectedRowsMap = { };
                     currentSelectedRowsMap[record.m_id] = true;
                 }
+            }
+
+            if(ImGui::IsItemClicked(ImGuiMouseButton_Right))
+            {
+                m_rowPopup.setOpened(true);
             }
 
             ImGui::SameLine();

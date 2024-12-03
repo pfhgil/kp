@@ -157,6 +157,10 @@ void SGE::EditorStyles::Dark::apply()
         m_reloadIcon = SGCore::AssetManager::getInstance()->loadAssetWithAlias<SGCore::SVGImage>(
                 "white_reload_icon",
                 "${projectPath}/Resources/icons/dark_style/reload.svg");
+
+        m_pencilIcon = SGCore::AssetManager::getInstance()->loadAssetWithAlias<SGCore::SVGImage>(
+                "white_pencil_icon",
+                "${projectPath}/Resources/icons/dark_style/pencil.svg");
     }
 }
 

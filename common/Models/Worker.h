@@ -15,7 +15,7 @@ struct Worker
     std::string m_patronymic;
     std::string m_role;
     // FK FROM STORAGES
-    std::int32_t m_storageID = 0;
+    std::int32_t m_storageID = -1;
     std::string m_login;
     std::string m_password;
 };

@@ -22,9 +22,34 @@ void Client::addWorker(const Worker& value) noexcept
 {
     Json::Value json;
     json["value"] = SGCore::Serde::Serializer::toFormat(value);
-    auto req = drogon::HttpRequest::newHttpJsonRequest(json);
 
+    auto req = drogon::HttpRequest::newHttpJsonRequest(json);
     req->setPath("/api/staff/add");
+    req->setMethod(drogon::HttpMethod::Post);
+    req->addHeader("Authorization", "Bearer " + s_jwtToken);
+
+    s_httpClient->sendRequest(req, [](drogon::ReqResult result, const drogon::HttpResponsePtr& response) {
+        if (result == drogon::ReqResult::Ok &&
+            response->getStatusCode() == drogon::HttpStatusCode::k200OK)
+        {
+            std::cout << "Response received: " << response->body() << ", status: "
+                      << response->getStatusCode() << std::endl;
+        }
+        else
+        {
+            std::cerr << "Request failed, request code: " << static_cast<int>(result)
+                      << ", and status code: " << response->getStatusCode() << std::endl;
+        }
+    });
+}
+
+void Client::updateWorkerByID(const int32_t& id, const Worker& newWorker) noexcept
+{
+    Json::Value json;
+    json["value"] = SGCore::Serde::Serializer::toFormat(newWorker);
+
+    auto req = drogon::HttpRequest::newHttpJsonRequest(json);
+    req->setPath("/api/staff/update/id=" + std::to_string(id));
     req->setMethod(drogon::HttpMethod::Post);
     req->addHeader("Authorization", "Bearer " + s_jwtToken);
 
@@ -115,6 +140,38 @@ std::future<Worker> Client::getWorkerByLogin(const std::string& login) noexcept
             std::string deserLog;
             SGCore::Serde::Serializer::fromFormat((*response->getJsonObject())["value"].asString(), worker, deserLog);
             std::cout << "Got worker with login " << worker.m_login << ", status: " << response->getStatusCode() << std::endl;
+
+            valuePromise->set_value(worker);
+        }
+        else
+        {
+            std::cerr << "Request failed, request code: " << static_cast<int>(result)
+                      << ", and status code: " << response->getStatusCode() << std::endl;
+            valuePromise->set_value({ });
+        }
+    });
+
+    return valueFuture;
+}
+
+std::future<Worker> Client::getWorkerByID(const int32_t& id) noexcept
+{
+    auto req = drogon::HttpRequest::newHttpRequest();
+    req->setPath("/api/staff/get/id=" + std::to_string(id));
+    req->setMethod(drogon::HttpMethod::Get);
+    req->addHeader("Authorization", "Bearer " + s_jwtToken);
+
+    auto valuePromise = std::make_shared<std::promise<Worker>>();
+    auto valueFuture = valuePromise->get_future();
+
+    s_httpClient->sendRequest(req, [valuePromise](drogon::ReqResult result, const drogon::HttpResponsePtr& response)  {
+        if (result == drogon::ReqResult::Ok &&
+            response->getStatusCode() == drogon::HttpStatusCode::k200OK)
+        {
+            Worker worker;
+            std::string deserLog;
+            SGCore::Serde::Serializer::fromFormat((*response->getJsonObject())["value"].asString(), worker, deserLog);
+            std::cout << "Got worker with id " << worker.m_id << ", status: " << response->getStatusCode() << std::endl;
 
             valuePromise->set_value(worker);
         }

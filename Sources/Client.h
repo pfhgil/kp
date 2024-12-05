@@ -16,9 +16,11 @@ struct Client
     static void start() noexcept;
 
     static void addWorker(const Worker& value) noexcept;
+    static void updateWorkerByID(const std::int32_t& id, const Worker& worker) noexcept;
     static void deleteWorkerByID(const std::int32_t& id) noexcept;
     [[nodiscard]] static std::future<std::vector<Worker>> getAllWorkers() noexcept;
     [[nodiscard]] static std::future<Worker> getWorkerByLogin(const std::string& login) noexcept;
+    [[nodiscard]] static std::future<Worker> getWorkerByID(const std::int32_t& id) noexcept;
 
     static void addStorage(const Storage& value) noexcept;
     static void deleteStorageByID(const std::int32_t& id) noexcept;

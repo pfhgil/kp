@@ -20,9 +20,11 @@ namespace api
         PATH_LIST_BEGIN
             METHOD_ADD(staff::getAllWorkersHandler, "/get_all", drogon::Get, "Utils::JWTAuthFilter");
             METHOD_ADD(staff::getWorkerByLoginHandler, "/get/login={login}", drogon::Get, "Utils::JWTAuthFilter");
+            METHOD_ADD(staff::getWorkerByIDHandler, "/get/id={id}", drogon::Get, "Utils::JWTAuthFilter");
             METHOD_ADD(staff::addWorkerHandler, "/add", drogon::Post, "Utils::JWTAuthFilter");
             METHOD_ADD(staff::authHandler, "/auth", drogon::Get);
             METHOD_ADD(staff::deleteWorkerHandler, "/delete/id={id}", drogon::Delete, "Utils::JWTAuthFilter");
+            METHOD_ADD(staff::updateWorkerHandler, "/update/id={id}", drogon::Post, "Utils::JWTAuthFilter");
             METHOD_ADD(staff::isAuthValid, "/validate_auth/tok={token}", drogon::Get);
         PATH_LIST_END
 
@@ -141,13 +143,53 @@ namespace api
                                    login);
         }
 
+        void getWorkerByIDHandler(const drogon::HttpRequestPtr& request, Utils::callback_t&& callback, const std::int32_t& id)
+        {
+            auto dbClient = drogon::app().getDbClient();
+
+            dbClient->execSqlAsync("SELECT * FROM staff WHERE id = $1",
+                                   [callback](const drogon::orm::Result& result) {
+                                       if(result.empty())
+                                       {
+                                           Utils::sendResponse(SGCore::Serde::Serializer::toFormat(Worker { .m_id = -1 }),
+                                                               drogon::HttpStatusCode::k200OK, callback, "value");
+                                           return;
+                                       }
+
+                                       Worker worker;
+
+                                       worker.m_id = result[0]["id"].as<int>();
+                                       worker.m_name = result[0]["name"].as<std::string>();
+                                       worker.m_surname = result[0]["surname"].as<std::string>();
+                                       worker.m_patronymic = result[0]["patronymic"].as<std::string>();
+                                       worker.m_role = result[0]["role"].as<std::string>();
+                                       worker.m_storageID = result[0]["storage_id"].as<int>();
+                                       worker.m_login = result[0]["login"].as<std::string>();
+                                       worker.m_password = result[0]["password"].as<std::string>();
+
+                                       const std::string req =
+                                               "Selected workers by login " + worker.m_login;
+
+                                       std::cout << req << std::endl;
+
+                                       Utils::sendResponse(SGCore::Serde::Serializer::toFormat(worker),
+                                                           drogon::HttpStatusCode::k200OK, callback, "value");
+                                   },
+                                   [callback](const drogon::orm::DrogonDbException& e) {
+                                       std::cerr << "Error selecting worker: " << e.base().what() << std::endl;
+                                       Utils::sendResponse("{ }",
+                                                           drogon::HttpStatusCode::k400BadRequest, callback);
+                                   },
+                                   id);
+        }
+
         void deleteWorkerHandler(const drogon::HttpRequestPtr& request, Utils::callback_t&& callback, std::int32_t id)
         {
             auto dbClient = drogon::app().getDbClient();
 
             dbClient->execSqlAsync("DELETE FROM staff WHERE id = $1",
                                    [callback, id](const drogon::orm::Result& result) {
-                                       std::cout << "Delete worker with ID: " << id << std::endl;
+                                       std::cout << "Deleted worker with ID: " << id << std::endl;
                                        Utils::sendResponse("Worker with ID '" + std::to_string(id) + "' deleted!",
                                                     drogon::HttpStatusCode::k200OK, callback
                                        );
@@ -158,8 +200,40 @@ namespace api
                                                     callback);
                                    },
                                    id);
+        }
 
-            std::cout << "workerrrrrrrr " << id << std::endl;
+        void updateWorkerHandler(const drogon::HttpRequestPtr& request, Utils::callback_t&& callback, std::int32_t id)
+        {
+            auto dbClient = drogon::app().getDbClient();
+
+            Json::Value jsonBody;
+            auto requestBody = request->getJsonObject();
+
+            std::string deserLog;
+            Worker value;
+            SGCore::Serde::Serializer::fromFormat(requestBody->get("value", {}).asString(), value, deserLog);
+
+            dbClient->execSqlAsync("UPDATE staff SET name = $1, surname = $2, patronymic = $3, "
+                                   "role = $4, storage_id = $5, login = $6, password = $7 WHERE id = $8",
+                                   [callback, id](const drogon::orm::Result& result) {
+                                       std::cout << "Updated worker with ID: " << id << std::endl;
+                                       Utils::sendResponse("Worker with ID '" + std::to_string(id) + "' updated!",
+                                                           drogon::HttpStatusCode::k200OK, callback
+                                       );
+                                   },
+                                   [callback](const drogon::orm::DrogonDbException& e) {
+                                       std::cerr << "Error updating worker: " << e.base().what() << std::endl;
+                                       Utils::sendResponse("Error updating worker!", drogon::HttpStatusCode::k400BadRequest,
+                                                           callback);
+                                   },
+                                   value.m_name,
+                                   value.m_surname,
+                                   value.m_patronymic,
+                                   value.m_role,
+                                   value.m_storageID,
+                                   value.m_login,
+                                   value.m_password,
+                                   value.m_id);
         }
 
         void authHandler(const drogon::HttpRequestPtr& request, Utils::callback_t&& callback)

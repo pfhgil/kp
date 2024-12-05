@@ -22,6 +22,16 @@ TablesView::TablesView() noexcept
             }
     };
 
+    m_rowPopup.onElementClicked += [this](const SGCore::Ref<SGE::PopupElement>& elem) {
+        if(elem->m_ID == "EditRow")
+        {
+            auto editableWorker = Client::getWorkerByID(m_rightClickedRowID).get();
+            m_updateWorkerWindow->setTableUpdateType(TableUpdateType::UPDATE);
+            m_updateWorkerWindow->m_editableWorker = editableWorker;
+            m_updateWorkerWindow->setActive(true);
+        }
+    };
+
     m_updateWorkerWindow = SGCore::MakeRef<UpdateWorkerWindow>();
     m_updateWorkerWindow->setActive(false);
 
@@ -34,11 +44,17 @@ TablesView::TablesView() noexcept
 
 void TablesView::renderBody() noexcept
 {
-    m_rowPopup.draw();
-
     ImGuiWindowClass windowClass;
     windowClass.DockNodeFlagsOverrideSet = ImGuiDockNodeFlags_AutoHideTabBar;
     ImGui::SetNextWindowClass(&windowClass);
+
+    if(m_openPopup)
+    {
+        m_rowPopup.setOpened(true);
+        m_openPopup = false;
+    }
+
+    m_rowPopup.draw();
 
     m_error = "";
 
@@ -197,7 +213,8 @@ void TablesView::drawStaffTable() noexcept
 
             if(ImGui::IsItemClicked(ImGuiMouseButton_Right))
             {
-                m_rowPopup.setOpened(true);
+                m_openPopup = true;
+                m_rightClickedRowID = record.m_id;
             }
 
             ImGui::SameLine();
@@ -276,7 +293,8 @@ void TablesView::drawStoragesTable() noexcept
 
             if(ImGui::IsItemClicked(ImGuiMouseButton_Right))
             {
-                m_rowPopup.setOpened(true);
+                m_openPopup = true;
+                m_rightClickedRowID = record.m_id;
             }
 
             ImGui::SameLine();

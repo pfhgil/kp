@@ -52,6 +52,8 @@ void Main::init() noexcept
     ImGuiWrap::IView::getRoot()->addChild(s_mainView);
 
     ImGui::LoadIniSettingsFromDisk(Utils::toUTF8((InterpolatedPath("${projectPath}/Resources/configs/ui.ini").resolved()).u16string()).c_str());
+
+    std::cout << SGCore::hashString("12345") << std::endl;
 }
 
 SGCore::Ref<MainView> Main::getMainView() noexcept

@@ -9,9 +9,12 @@
 #include "Models/Worker.h"
 #include "Models/Storage.h"
 #include "Roles.h"
+#include "TableUpdateType.h"
 
 struct UpdateWorkerWindow : public SGE::Window
 {
+    Worker m_editableWorker { };
+
     UpdateWorkerWindow() noexcept;
 
     void renderBody() noexcept final;
@@ -19,7 +22,11 @@ struct UpdateWorkerWindow : public SGE::Window
 
     void onActiveChangedListener() noexcept final;
 
+    void setTableUpdateType(TableUpdateType tableUpdateType) noexcept;
+
 private:
+    TableUpdateType m_tableUpdateType = TableUpdateType::ADD;
+
     void submit() noexcept;
     void cancel() noexcept;
 
@@ -29,7 +36,6 @@ private:
     std::string m_errorMessage;
 
     std::vector<Storage> m_tmpStorages;
-    Worker m_tmpWorker { };
 };
 
 #endif //PROJ3_UPDATEWORKERWINDOW_H

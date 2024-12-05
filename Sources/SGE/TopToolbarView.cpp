@@ -116,7 +116,10 @@ SGE::TopToolbarView::TopToolbarView()
             {
                 case TableType::STAFF:
                 {
-                    Main::getMainView()->getTablesView()->getUpdateWorkerWindow()->setActive(true);
+                    auto wnd = Main::getMainView()->getTablesView()->getUpdateWorkerWindow();
+
+                    wnd->setTableUpdateType(TableUpdateType::ADD);
+                    wnd->setActive(true);
 
                     break;
                 }

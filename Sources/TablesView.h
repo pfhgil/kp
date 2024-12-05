@@ -39,6 +39,9 @@ private:
     // every element in vector is map for every table type. in map: first - id of record
     std::vector<std::unordered_map<std::int32_t, bool>> m_selectedRows;
 
+    std::int32_t m_rightClickedRowID = -1;
+    bool m_openPopup = false;
+
     SGCore::Ref<UpdateWorkerWindow> m_updateWorkerWindow;
 
     SGE::Popup m_rowPopup;

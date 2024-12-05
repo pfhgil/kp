@@ -9,7 +9,7 @@
 
 struct Worker
 {
-    std::int32_t m_id = 0;
+    std::int32_t m_id = -1;
     std::string m_name;
     std::string m_surname;
     std::string m_patronymic;

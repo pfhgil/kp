@@ -13,8 +13,8 @@
 UpdateWorkerWindow::UpdateWorkerWindow() noexcept
 {
     m_isPopupWindow = true;
-    m_bodyMinSize = { 350.0f, 300.0f };
-    m_name = "Add Worker";
+    m_bodyMinSize = { 350.0f, 275.0f };
+    setTableUpdateType(m_tableUpdateType);
 
     addButton({
                       .m_text = "OK",
@@ -57,7 +57,7 @@ void UpdateWorkerWindow::renderBody() noexcept
             ImGui::TableNextColumn();
             ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 7);
             ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-            ImGui::InputText("##Name", &m_tmpWorker.m_name);
+            ImGui::InputText("##Name", &m_editableWorker.m_name);
         }
 
         ImGui::TableNextRow();
@@ -68,7 +68,7 @@ void UpdateWorkerWindow::renderBody() noexcept
             ImGui::TableNextColumn();
             ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 7);
             ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-            ImGui::InputText("##Surname", &m_tmpWorker.m_surname);
+            ImGui::InputText("##Surname", &m_editableWorker.m_surname);
         }
 
         ImGui::TableNextRow();
@@ -79,7 +79,7 @@ void UpdateWorkerWindow::renderBody() noexcept
             ImGui::TableNextColumn();
             ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 7);
             ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-            ImGui::InputText("##Patronymic", &m_tmpWorker.m_patronymic);
+            ImGui::InputText("##Patronymic", &m_editableWorker.m_patronymic);
         }
 
         ImGui::TableNextRow();
@@ -90,7 +90,7 @@ void UpdateWorkerWindow::renderBody() noexcept
             ImGui::TableNextColumn();
             ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 7);
             ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-            if(ImGui::BeginCombo("##RoleCombo", m_tmpWorker.m_role.c_str()))
+            if(ImGui::BeginCombo("##RoleCombo", m_editableWorker.m_role.c_str()))
             {
                 drawRoleSelectable(Role::DIRECTOR);
                 drawRoleSelectable(Role::STOREKEEPER);
@@ -109,7 +109,7 @@ void UpdateWorkerWindow::renderBody() noexcept
             ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 7);
             ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
 
-            auto workerStorage = Client::getStorageByID(m_tmpWorker.m_storageID).get();
+            auto workerStorage = Client::getStorageByID(m_editableWorker.m_storageID).get();
             if(ImGui::BeginCombo("##StorageCombo", workerStorage.m_address.c_str()))
             {
                 for(const auto& storage : m_tmpStorages)
@@ -129,18 +129,21 @@ void UpdateWorkerWindow::renderBody() noexcept
             ImGui::TableNextColumn();
             ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 7);
             ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-            ImGui::InputText("##Login", &m_tmpWorker.m_login);
+            ImGui::InputText("##Login", &m_editableWorker.m_login);
         }
 
-        ImGui::TableNextRow();
+        if(m_tableUpdateType != TableUpdateType::UPDATE)
         {
-            ImGui::TableNextColumn();
-            ImGui::Text("Password");
+            ImGui::TableNextRow();
+            {
+                ImGui::TableNextColumn();
+                ImGui::Text("Password");
 
-            ImGui::TableNextColumn();
-            ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 7);
-            ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-            ImGui::InputText("##Password", &m_tmpWorker.m_password);
+                ImGui::TableNextColumn();
+                ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 7);
+                ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
+                ImGui::InputText("##Password", &m_editableWorker.m_password);
+            }
         }
 
         ImGui::EndTable();
@@ -157,72 +160,90 @@ void UpdateWorkerWindow::footerRender() noexcept
 
 void UpdateWorkerWindow::onActiveChangedListener() noexcept
 {
+    if(!isActive())
+    {
+        m_editableWorker = {};
+    }
     m_tmpStorages = Client::getAllStorages().get();
 }
 
 void UpdateWorkerWindow::submit() noexcept
 {
-    if(m_tmpWorker.m_name.empty())
+    if(m_editableWorker.m_name.empty())
     {
         m_errorMessage = "Field 'name' should not be empty";
         return;
     }
 
-    if(m_tmpWorker.m_surname.empty())
+    if(m_editableWorker.m_surname.empty())
     {
         m_errorMessage = "Field 'surname' should not be empty";
         return;
     }
 
-    if(m_tmpWorker.m_role.empty())
+    if(m_editableWorker.m_role.empty())
     {
         m_errorMessage = "Please, select role (field 'Role')";
         return;
     }
 
-    if(m_tmpWorker.m_storageID == -1)
+    if(m_editableWorker.m_storageID == -1)
     {
         m_errorMessage = "Please, select storage (field 'Storage')";
         return;
     }
 
-    if(m_tmpWorker.m_login.empty())
+    if(m_editableWorker.m_login.empty())
     {
         m_errorMessage = "Field 'login' should not be empty";
         return;
     }
 
-    if(m_tmpWorker.m_password.empty())
+    if(m_editableWorker.m_password.empty())
     {
         m_errorMessage = "Field 'password' should not be empty";
         return;
     }
 
-    if(m_tmpWorker.m_login.empty())
+    if(m_editableWorker.m_login.empty())
     {
         m_errorMessage = "Field 'login' should not be empty";
         return;
     }
 
-    if(Client::getWorkerByLogin(m_tmpWorker.m_login).get().m_id != -1)
+    auto workerWithThatLogin = Client::getWorkerByLogin(m_editableWorker.m_login).get();
+    if(workerWithThatLogin.m_id != -1 && workerWithThatLogin.m_id != m_editableWorker.m_id)
     {
         m_errorMessage = "Worker with this login is already exists";
         return;
     }
 
-    m_tmpWorker.m_password = std::to_string(SGCore::hashString(m_tmpWorker.m_password));
-    Client::addWorker(m_tmpWorker);
+    if(m_tableUpdateType != TableUpdateType::UPDATE)
+    {
+        m_editableWorker.m_password = std::to_string(SGCore::hashString(m_editableWorker.m_password));
+    }
+
+    switch(m_tableUpdateType)
+    {
+        case TableUpdateType::ADD:
+            Client::addWorker(m_editableWorker);
+            break;
+        case TableUpdateType::UPDATE:
+            Client::updateWorkerByID(m_editableWorker.m_id, m_editableWorker);
+            break;
+    }
+
+    m_editableWorker = { };
 
     Main::getMainView()->getTablesView()->reloadTable(TableType::STAFF);
 
-    m_tmpWorker = { };
     m_errorMessage = "";
     setActive(false);
 }
 
 void UpdateWorkerWindow::cancel() noexcept
 {
-    m_tmpWorker = { };
+    m_editableWorker = { };
     m_errorMessage = "";
     setActive(false);
 }
@@ -232,12 +253,12 @@ void UpdateWorkerWindow::drawRoleSelectable(Role role) noexcept
     const auto roleStr = roleToString(role);
 
     if(ImGui::Selectable(roleToString(role).c_str(),
-                         m_tmpWorker.m_role == roleStr))
+                         m_editableWorker.m_role == roleStr))
     {
-        m_tmpWorker.m_role = roleStr;
+        m_editableWorker.m_role = roleStr;
     }
 
-    if(m_tmpWorker.m_role == roleStr)
+    if(m_editableWorker.m_role == roleStr)
     {
         ImGui::SetItemDefaultFocus();
     }
@@ -246,13 +267,27 @@ void UpdateWorkerWindow::drawRoleSelectable(Role role) noexcept
 void UpdateWorkerWindow::drawStorageSelectable(const Storage& storage) noexcept
 {
     if(ImGui::Selectable(storage.m_address.c_str(),
-                         m_tmpWorker.m_storageID == storage.m_id))
+                         m_editableWorker.m_storageID == storage.m_id))
     {
-        m_tmpWorker.m_storageID = storage.m_id;
+        m_editableWorker.m_storageID = storage.m_id;
     }
 
-    if(m_tmpWorker.m_storageID == storage.m_id)
+    if(m_editableWorker.m_storageID == storage.m_id)
     {
         ImGui::SetItemDefaultFocus();
+    }
+}
+
+void UpdateWorkerWindow::setTableUpdateType(TableUpdateType tableUpdateType) noexcept
+{
+    m_tableUpdateType = tableUpdateType;
+    switch(m_tableUpdateType)
+    {
+        case TableUpdateType::ADD:
+            m_name = "Add Worker";
+            break;
+        case TableUpdateType::UPDATE:
+            m_name = "Update Worker";
+            break;
     }
 }

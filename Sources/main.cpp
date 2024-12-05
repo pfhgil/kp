@@ -54,6 +54,8 @@ void Main::init() noexcept
     ImGui::LoadIniSettingsFromDisk(Utils::toUTF8((InterpolatedPath("${projectPath}/Resources/configs/ui.ini").resolved()).u16string()).c_str());
 
     std::cout << SGCore::hashString("12345") << std::endl;
+
+    std::cout << SGCore::Utils::getStringAsTime("2100-12-10").time_since_epoch().count() << std::endl;
 }
 
 SGCore::Ref<MainView> Main::getMainView() noexcept

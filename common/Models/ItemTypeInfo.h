@@ -10,9 +10,9 @@
 
 struct ItemTypeInfo
 {
-    std::int64_t m_id = 0;
+    std::int32_t m_id = -1;
     std::string m_name;
-    std::int64_t m_count;
+    std::int32_t m_count;
     std::string m_dateOfReceipt;
     std::string m_expirationDate;
     std::string m_productionDate;

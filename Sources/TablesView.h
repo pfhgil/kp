@@ -12,6 +12,7 @@
 #include "Update/UpdateWorkerWindow.h"
 #include "Update/UpdateStorageWindow.h"
 #include "SGE/Popup.h"
+#include "Models/ItemTypeInfo.h"
 
 struct TablesView : public SGCore::ImGuiWrap::IView
 {
@@ -23,6 +24,7 @@ struct TablesView : public SGCore::ImGuiWrap::IView
 
     std::vector<Worker> m_workers;
     std::vector<Storage> m_storages;
+    std::vector<ItemTypeInfo> m_itemsTypeInfo;
 
     void reloadTable(TableType tableType) noexcept;
     void reloadAllTables() noexcept;
@@ -55,6 +57,7 @@ private:
 
     void drawStaffTable() noexcept;
     void drawStoragesTable() noexcept;
+    void drawItemsTypeInfoTable() noexcept;
 
     template<typename T>
     void sortTable(std::vector<T>& collection)
@@ -90,11 +93,12 @@ private:
 
     void initializeSortingSpecsForWorkers() const noexcept;
     void initializeSortingSpecsForStorages() const noexcept;
+    void initializeSortingSpecsForItemsTypeInfo() const noexcept;
 
     template<typename T>
     struct SortingSpecs
     {
-        static inline std::unordered_map<std::uint16_t, std::function<std::pair<std::int32_t, std::int32_t>(const T& t0, const T& t1)>> s_sortingFunctions;
+        static inline std::unordered_map<std::uint16_t, std::function<std::pair<std::int64_t, std::int64_t>(const T& t0, const T& t1)>> s_sortingFunctions;
     };
 };
 

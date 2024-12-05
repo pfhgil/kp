@@ -7,6 +7,7 @@
 #include <jwt-cpp/jwt.h>
 #include "Controllers/StaffController.h"
 #include "Controllers/StoragesController.h"
+#include "Controllers/ItemTypeInfoController.h"
 
 #include "Utils.h"
 #include "SerdeSpecs.h"
@@ -22,6 +23,7 @@ int main()
     drogon::app()
             .registerController(std::make_shared<api::staff>())
             .registerController(std::make_shared<api::storages>())
+            .registerController(std::make_shared<api::item_type_info>())
             .setLogLevel(trantor::Logger::LogLevel::kTrace)
             /*.registerHandler("/add_worker", &addWorkerHandler, { drogon::Post })
             .registerHandler("/add_storage", &addStorageHandler, { drogon::Post })

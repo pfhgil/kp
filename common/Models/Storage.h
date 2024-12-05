@@ -9,7 +9,7 @@
 
 struct Storage
 {
-    std::int64_t m_id = -1;
+    std::int32_t m_id = -1;
     std::string m_address;
 };
 

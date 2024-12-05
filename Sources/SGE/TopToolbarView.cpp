@@ -107,6 +107,10 @@ SGE::TopToolbarView::TopToolbarView()
         {
             Main::getMainView()->getTablesView()->m_tableType = TableType::STORAGES;
         }
+        else if(element->m_ID == "Tables/ItemsTypeInfo")
+        {
+            Main::getMainView()->getTablesView()->m_tableType = TableType::ITEM_TYPE_INFO;
+        }
     };
 
     m_editButtonPopup.onElementClicked += [](const SGCore::Ref<PopupElement>& element) {
@@ -134,7 +138,24 @@ SGE::TopToolbarView::TopToolbarView()
                     break;
                 }
                 case TableType::SHIPMENTS:break;
-                case TableType::ITEM_TYPE_INFO:break;
+                case TableType::ITEM_TYPE_INFO:
+                {
+                    /*auto wnd = Main::getMainView()->getTablesView()->getUpdateStorageWindow();
+
+                    wnd->setTableUpdateType(TableUpdateType::ADD);
+                    wnd->setActive(true);*/
+
+                    ItemTypeInfo itemTypeInfo {
+                        .m_name = "Металл",
+                        .m_dateOfReceipt = "2023-10-24",
+                        .m_expirationDate = "2101-11-10",
+                        .m_productionDate = "2001-11-10"
+                    };
+
+                    Client::addItemTypeInfo(itemTypeInfo);
+
+                    break;
+                }
                 case TableType::ITEMS:break;
                 case TableType::ORDERS:break;
                 case TableType::PROVIDERS:break;

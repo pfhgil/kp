@@ -11,6 +11,7 @@
 
 #include "Models/Worker.h"
 #include "Models/Storage.h"
+#include "Models/ItemTypeInfo.h"
 
 namespace SGCore::Serde
 {
@@ -108,6 +109,62 @@ namespace SGCore::Serde
             if(m_address)
             {
                 valueView.m_data->m_address = std::move(*m_address);
+            }
+        }
+    };
+
+    template<FormatType TFormatType>
+    struct SerdeSpec<ItemTypeInfo, TFormatType> : Serde::BaseTypes<>, SGCore::Serde::DerivedTypes<>
+    {
+        static inline const std::string type_name = "ItemTypeInfo";
+        static inline constexpr bool is_pointer_type = false;
+
+        static void serialize(SGCore::Serde::SerializableValueView<ItemTypeInfo, TFormatType>& valueView) noexcept
+        {
+            valueView.getValueContainer().addMember("m_id", valueView.m_data->m_id);
+            valueView.getValueContainer().addMember("m_name", valueView.m_data->m_name);
+            valueView.getValueContainer().addMember("m_count", valueView.m_data->m_count);
+            valueView.getValueContainer().addMember("m_dateOfReceipt", valueView.m_data->m_dateOfReceipt);
+            valueView.getValueContainer().addMember("m_expirationDate", valueView.m_data->m_expirationDate);
+            valueView.getValueContainer().addMember("m_productionDate", valueView.m_data->m_productionDate);
+        }
+
+        static void deserialize(SGCore::Serde::DeserializableValueView<ItemTypeInfo, TFormatType>& valueView) noexcept
+        {
+            auto m_id = valueView.getValueContainer().template getMember<std::int64_t>("m_id");
+            if(m_id)
+            {
+                valueView.m_data->m_id = *m_id;
+            }
+
+            auto m_name = valueView.getValueContainer().template getMember<std::string>("m_name");
+            if(m_name)
+            {
+                valueView.m_data->m_name = std::move(*m_name);
+            }
+
+            auto m_count = valueView.getValueContainer().template getMember<std::int64_t>("m_count");
+            if(m_count)
+            {
+                valueView.m_data->m_count = *m_count;
+            }
+
+            auto m_dateOfReceipt = valueView.getValueContainer().template getMember<std::string>("m_dateOfReceipt");
+            if(m_dateOfReceipt)
+            {
+                valueView.m_data->m_dateOfReceipt = std::move(*m_dateOfReceipt);
+            }
+
+            auto m_expirationDate = valueView.getValueContainer().template getMember<std::string>("m_expirationDate");
+            if(m_expirationDate)
+            {
+                valueView.m_data->m_expirationDate = std::move(*m_expirationDate);
+            }
+
+            auto m_productionDate = valueView.getValueContainer().template getMember<std::string>("m_productionDate");
+            if(m_productionDate)
+            {
+                valueView.m_data->m_productionDate = std::move(*m_productionDate);
             }
         }
     };

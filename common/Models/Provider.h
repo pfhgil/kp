@@ -9,7 +9,7 @@
 
 struct Provider
 {
-    std::int64_t m_id = 0;
+    std::int32_t m_id = 0;
     std::string m_name;
 };
 

@@ -43,10 +43,10 @@ void Client::addWorker(const Worker& value) noexcept
     });
 }
 
-void Client::updateWorkerByID(const int32_t& id, const Worker& newWorker) noexcept
+void Client::updateWorkerByID(const int32_t& id, const Worker& value) noexcept
 {
     Json::Value json;
-    json["value"] = SGCore::Serde::Serializer::toFormat(newWorker);
+    json["value"] = SGCore::Serde::Serializer::toFormat(value);
 
     auto req = drogon::HttpRequest::newHttpJsonRequest(json);
     req->setPath("/api/staff/update/id=" + std::to_string(id));
@@ -233,10 +233,10 @@ void Client::deleteStorageByID(const int32_t& id) noexcept
     });
 }
 
-void Client::updateStorageByID(const int32_t& id, const Storage& storage) noexcept
+void Client::updateStorageByID(const int32_t& id, const Storage& value) noexcept
 {
     Json::Value json;
-    json["value"] = SGCore::Serde::Serializer::toFormat(storage);
+    json["value"] = SGCore::Serde::Serializer::toFormat(value);
 
     auto req = drogon::HttpRequest::newHttpJsonRequest(json);
     req->setPath("/api/storages/update/id=" + std::to_string(id));
@@ -403,4 +403,141 @@ std::future<bool> Client::isAuthValid(const std::string& token) noexcept
 const std::string& Client::getJWTToken() noexcept
 {
     return s_jwtToken;
+}
+
+void Client::addItemTypeInfo(const ItemTypeInfo& value) noexcept
+{
+    Json::Value json;
+    json["value"] = SGCore::Serde::Serializer::toFormat(value);
+
+    auto req = drogon::HttpRequest::newHttpJsonRequest(json);
+    req->setPath("/api/item_type_info/add");
+    req->setMethod(drogon::HttpMethod::Post);
+    req->addHeader("Authorization", "Bearer " + s_jwtToken);
+
+    s_httpClient->sendRequest(req, [](drogon::ReqResult result, const drogon::HttpResponsePtr& response) {
+        if (result == drogon::ReqResult::Ok &&
+            response->getStatusCode() == drogon::HttpStatusCode::k200OK)
+        {
+            std::cout << "Response received: " << response->body() << ", status: "
+                      << response->getStatusCode() << std::endl;
+        }
+        else
+        {
+            std::cerr << "Request failed, request code: " << static_cast<int>(result)
+                      << ", and status code: " << response->getStatusCode() << std::endl;
+        }
+    });
+}
+
+void Client::deleteItemTypeInfoByID(const int32_t& id) noexcept
+{
+    auto req = drogon::HttpRequest::newHttpRequest();
+    req->setPath("/api/item_type_info/delete/id=" + std::to_string(id));
+    req->setMethod(drogon::HttpMethod::Delete);
+    req->addHeader("Authorization", "Bearer " + s_jwtToken);
+
+    s_httpClient->sendRequest(req, [](drogon::ReqResult result, const drogon::HttpResponsePtr& response) {
+        if (result == drogon::ReqResult::Ok &&
+            response->getStatusCode() == drogon::HttpStatusCode::k200OK)
+        {
+            std::cout << "Response received: " << response->body() << ", status: "
+                      << response->getStatusCode() << std::endl;
+        }
+        else
+        {
+            std::cerr << "Request failed, request code: " << static_cast<int>(result)
+                      << ", and status code: " << response->getStatusCode() << std::endl;
+        }
+    });
+}
+
+void Client::updateItemTypeInfoByID(const int32_t& id, const ItemTypeInfo& value) noexcept
+{
+    Json::Value json;
+    json["value"] = SGCore::Serde::Serializer::toFormat(value);
+
+    auto req = drogon::HttpRequest::newHttpJsonRequest(json);
+    req->setPath("/api/item_type_info/update/id=" + std::to_string(id));
+    req->setMethod(drogon::HttpMethod::Post);
+    req->addHeader("Authorization", "Bearer " + s_jwtToken);
+
+    s_httpClient->sendRequest(req, [](drogon::ReqResult result, const drogon::HttpResponsePtr& response) {
+        if (result == drogon::ReqResult::Ok &&
+            response->getStatusCode() == drogon::HttpStatusCode::k200OK)
+        {
+            std::cout << "Response received: " << response->body() << ", status: "
+                      << response->getStatusCode() << std::endl;
+        }
+        else
+        {
+            std::cerr << "Request failed, request code: " << static_cast<int>(result)
+                      << ", and status code: " << response->getStatusCode() << std::endl;
+        }
+    });
+}
+
+std::future<ItemTypeInfo> Client::getItemTypeInfoByID(const int32_t& id) noexcept
+{
+    auto req = drogon::HttpRequest::newHttpRequest();
+    req->setPath("/api/item_type_info/get/id=" + std::to_string(id));
+    req->setMethod(drogon::HttpMethod::Get);
+    req->addHeader("Authorization", "Bearer " + s_jwtToken);
+
+    auto valuePromise = std::make_shared<std::promise<ItemTypeInfo>>();
+    auto valueFuture = valuePromise->get_future();
+
+    s_httpClient->sendRequest(req, [valuePromise](drogon::ReqResult result, const drogon::HttpResponsePtr& response) {
+        if (result == drogon::ReqResult::Ok &&
+            response->getStatusCode() == drogon::HttpStatusCode::k200OK)
+        {
+            ItemTypeInfo itemTypeInfo;
+            std::string deserLog;
+            SGCore::Serde::Serializer::fromFormat((*response->getJsonObject())["value"].asString(), itemTypeInfo, deserLog);
+
+            std::cout << "Got storage with ID " << itemTypeInfo.m_id << ", status: " << response->getStatusCode() << std::endl;
+
+            valuePromise->set_value(itemTypeInfo);
+        }
+        else
+        {
+            std::cerr << "Request failed, request code: " << static_cast<int>(result)
+                      << ", and status code: " << response->getStatusCode() << std::endl;
+            valuePromise->set_value({});
+        }
+    });
+
+    return valueFuture;
+}
+
+std::future<std::vector<ItemTypeInfo>> Client::getAllItemsTypeInfo() noexcept
+{
+    auto req = drogon::HttpRequest::newHttpRequest();
+    req->setPath("/api/item_type_info/get_all");
+    req->setMethod(drogon::HttpMethod::Get);
+    req->addHeader("Authorization", "Bearer " + s_jwtToken);
+
+    auto valuePromise = std::make_shared<std::promise<std::vector<ItemTypeInfo>>>();
+    auto valueFuture = valuePromise->get_future();
+
+    s_httpClient->sendRequest(req, [valuePromise](drogon::ReqResult result, const drogon::HttpResponsePtr& response) {
+        if (result == drogon::ReqResult::Ok &&
+            response->getStatusCode() == drogon::HttpStatusCode::k200OK)
+        {
+            std::vector<ItemTypeInfo> itemsTypeInfo;
+            std::string deserLog;
+            SGCore::Serde::Serializer::fromFormat((*response->getJsonObject())["value"].asString(), itemsTypeInfo, deserLog);
+            std::cout << "Got " << itemsTypeInfo.size() << " storages, status: " << response->getStatusCode() << std::endl;
+
+            valuePromise->set_value(itemsTypeInfo);
+        }
+        else
+        {
+            std::cerr << "Request failed, request code: " << static_cast<int>(result)
+                      << ", and status code: " << response->getStatusCode() << std::endl;
+            valuePromise->set_value({});
+        }
+    });
+
+    return valueFuture;
 }

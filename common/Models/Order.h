@@ -9,12 +9,12 @@
 
 struct Order
 {
-    std::int64_t m_id = 0;
+    std::int32_t m_id = 0;
     // FK FROM PROVIDERS
-    std::int64_t m_providerID = -1;
+    std::int32_t m_providerID = -1;
     // FK FROM item_type_info
-    std::int64_t m_itemTypeInfoID = -1;
-    std::int64_t m_orderedCount = 0;
+    std::int32_t m_itemTypeInfoID = -1;
+    std::int32_t m_orderedCount = 0;
     float m_cost = 0.0f;
 };
 

@@ -77,6 +77,7 @@ TablesView::TablesView() noexcept
 
     initializeSortingSpecsForWorkers();
     initializeSortingSpecsForStorages();
+    initializeSortingSpecsForItemsTypeInfo();
 }
 
 void TablesView::renderBody() noexcept
@@ -97,6 +98,10 @@ void TablesView::renderBody() noexcept
 
     ImGui::Begin("Table");
 
+    ImGui::TextColored({ 1.0, 0.0, 0.0, 1.0 }, m_error.c_str());
+
+    ImGui::BeginChildFrame(ImGui::GetID("TableChild"), ImGui::GetContentRegionAvail());
+
     switch(m_tableType)
     {
         case TableType::STAFF:
@@ -111,13 +116,17 @@ void TablesView::renderBody() noexcept
             break;
         }
         case TableType::SHIPMENTS:break;
-        case TableType::ITEM_TYPE_INFO:break;
+        case TableType::ITEM_TYPE_INFO:
+        {
+            drawItemsTypeInfoTable();
+            break;
+        }
         case TableType::ITEMS:break;
         case TableType::ORDERS:break;
         case TableType::PROVIDERS:break;
     }
 
-    ImGui::TextColored({ 1.0, 0.0, 0.0, 1.0 }, m_error.c_str());
+    ImGui::EndChildFrame();
 
     ImGui::End();
 }
@@ -138,7 +147,11 @@ void TablesView::reloadTable(TableType tableType) noexcept
             break;
         }
         case TableType::SHIPMENTS:break;
-        case TableType::ITEM_TYPE_INFO:break;
+        case TableType::ITEM_TYPE_INFO:
+        {
+            m_itemsTypeInfo = Client::getAllItemsTypeInfo().get();
+            break;
+        }
         case TableType::ITEMS:break;
         case TableType::ORDERS:break;
         case TableType::PROVIDERS:break;
@@ -168,6 +181,7 @@ void TablesView::deleteSelectedRows() noexcept
             {
                 if(row.second) Client::deleteWorkerByID(row.first);
             }
+
             m_workers = Client::getAllWorkers().get();
             break;
         }
@@ -179,13 +193,22 @@ void TablesView::deleteSelectedRows() noexcept
             {
                 if(row.second) Client::deleteStorageByID(row.first);
             }
+
             m_storages = Client::getAllStorages().get();
             break;
         }
         case TableType::SHIPMENTS:
             break;
         case TableType::ITEM_TYPE_INFO:
+        {
+            for(const auto& row : tableSelectedRowsMapping)
+            {
+                if(row.second) Client::deleteItemTypeInfoByID(row.first);
+            }
+
+            m_itemsTypeInfo = Client::getAllItemsTypeInfo().get();
             break;
+        }
         case TableType::ITEMS:
             break;
         case TableType::ORDERS:
@@ -351,49 +374,159 @@ void TablesView::drawStoragesTable() noexcept
     }
 }
 
+void TablesView::drawItemsTypeInfoTable() noexcept
+{
+    if(m_storages.empty())
+    {
+        m_error = "Table 'item_type_info' is empty!";
+        return;
+    }
+
+    if(ImGui::BeginTable("ItemsTypeInfo", 6, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg | ImGuiTableFlags_Sortable))
+    {
+        ImGui::TableSetupColumn("ID");
+        ImGui::TableSetupColumn("Name");
+        ImGui::TableSetupColumn("Count");
+        ImGui::TableSetupColumn("Date Of Receipt");
+        ImGui::TableSetupColumn("Expiration Date");
+        ImGui::TableSetupColumn("Production Date");
+        ImGui::TableHeadersRow();
+
+        for(auto& record : m_itemsTypeInfo)
+        {
+            ImGui::TableNextRow();
+            ImGui::TableNextColumn();
+
+            ImGui::PushID(("ItemTypeInfoRow" + std::to_string(record.m_id)).c_str());
+
+            auto& currentSelectedRowsMap = m_selectedRows[static_cast<int>(m_tableType)];
+            auto& isSelected = currentSelectedRowsMap[record.m_id];
+            auto tmpIsSelected = isSelected;
+
+            if(ImGui::Selectable(
+                    "", &tmpIsSelected, ImGuiSelectableFlags_SpanAllColumns)) {
+                if (ImGui::IsKeyDown(ImGuiKey_ModShift))
+                {
+                    isSelected = true;
+                }
+                else if (ImGui::IsKeyDown(ImGuiKey_ModCtrl))
+                {
+                    isSelected = !isSelected;
+                }
+                else
+                {
+                    // оставляем только текущую строку
+                    currentSelectedRowsMap = { };
+                    currentSelectedRowsMap[record.m_id] = true;
+                }
+            }
+
+            if(ImGui::IsItemClicked(ImGuiMouseButton_Right))
+            {
+                m_openPopup = true;
+                m_rightClickedRowID = record.m_id;
+            }
+
+            ImGui::SameLine();
+            ImGui::Text(std::to_string(record.m_id).c_str());
+
+            ImGui::TableNextColumn();
+            ImGui::Text(record.m_name.c_str());
+
+            ImGui::TableNextColumn();
+            ImGui::Text(std::to_string(record.m_count).c_str());
+
+            ImGui::TableNextColumn();
+            ImGui::Text(record.m_dateOfReceipt.c_str());
+
+            ImGui::TableNextColumn();
+            ImGui::Text(record.m_expirationDate.c_str());
+
+            ImGui::TableNextColumn();
+            ImGui::Text(record.m_productionDate.c_str());
+
+            ImGui::PopID();
+
+            sortTable(m_itemsTypeInfo);
+        }
+
+        ImGui::EndTable();
+    }
+}
+
 void TablesView::initializeSortingSpecsForWorkers() const noexcept
 {
-    SortingSpecs<Worker>::s_sortingFunctions[0] = [](const Worker& t0, const Worker& t1) noexcept {
+    SortingSpecs<Worker>::s_sortingFunctions[0] = [](const auto& t0, const auto& t1) noexcept {
         return std::pair { t0.m_id, t1.m_id };
     };
 
-    SortingSpecs<Worker>::s_sortingFunctions[1] = [](const Worker& t0, const Worker& t1) noexcept {
+    SortingSpecs<Worker>::s_sortingFunctions[1] = [](const auto& t0, const auto& t1) noexcept {
         return std::pair { t0.m_name.size(), t1.m_name.size() };
     };
 
-    SortingSpecs<Worker>::s_sortingFunctions[2] = [](const Worker& t0, const Worker& t1) noexcept {
+    SortingSpecs<Worker>::s_sortingFunctions[2] = [](const auto& t0, const auto& t1) noexcept {
         return std::pair { t0.m_surname.size(), t1.m_surname.size() };
     };
 
-    SortingSpecs<Worker>::s_sortingFunctions[3] = [](const Worker& t0, const Worker& t1) noexcept {
+    SortingSpecs<Worker>::s_sortingFunctions[3] = [](const auto& t0, const auto& t1) noexcept {
         return std::pair { t0.m_patronymic.size(), t1.m_patronymic.size() };
     };
 
-    SortingSpecs<Worker>::s_sortingFunctions[4] = [](const Worker& t0, const Worker& t1) noexcept {
+    SortingSpecs<Worker>::s_sortingFunctions[4] = [](const auto& t0, const auto& t1) noexcept {
         return std::pair { static_cast<std::int32_t>(t0.m_role), static_cast<std::int32_t>(t1.m_role) };
     };
 
-    SortingSpecs<Worker>::s_sortingFunctions[5] = [](const Worker& t0, const Worker& t1) noexcept {
+    SortingSpecs<Worker>::s_sortingFunctions[5] = [](const auto& t0, const auto& t1) noexcept {
         return std::pair { t0.m_storageID, t1.m_storageID };
     };
 
-    SortingSpecs<Worker>::s_sortingFunctions[6] = [](const Worker& t0, const Worker& t1) noexcept {
+    SortingSpecs<Worker>::s_sortingFunctions[6] = [](const auto& t0, const auto& t1) noexcept {
         return std::pair { t0.m_login.size(), t1.m_login.size() };
     };
 
-    SortingSpecs<Worker>::s_sortingFunctions[7] = [](const Worker& t0, const Worker& t1) noexcept {
+    SortingSpecs<Worker>::s_sortingFunctions[7] = [](const auto& t0, const auto& t1) noexcept {
         return std::pair { t0.m_password.size(), t1.m_password.size() };
     };
 }
 
 void TablesView::initializeSortingSpecsForStorages() const noexcept
 {
-    SortingSpecs<Storage>::s_sortingFunctions[0] = [](const Storage& t0, const Storage& t1) noexcept {
+    SortingSpecs<Storage>::s_sortingFunctions[0] = [](const auto& t0, const auto& t1) noexcept {
         return std::pair { t0.m_id, t1.m_id };
     };
 
-    SortingSpecs<Storage>::s_sortingFunctions[1] = [](const Storage& t0, const Storage& t1) noexcept {
+    SortingSpecs<Storage>::s_sortingFunctions[1] = [](const auto& t0, const auto& t1) noexcept {
         return std::pair { t0.m_address.size(), t1.m_address.size() };
+    };
+}
+
+void TablesView::initializeSortingSpecsForItemsTypeInfo() const noexcept
+{
+    SortingSpecs<ItemTypeInfo>::s_sortingFunctions[0] = [](const auto& t0, const auto& t1) noexcept {
+        return std::pair { t0.m_id, t1.m_id };
+    };
+
+    SortingSpecs<ItemTypeInfo>::s_sortingFunctions[1] = [](const auto& t0, const auto& t1) noexcept {
+        return std::pair { t0.m_name.size(), t1.m_name.size() };
+    };
+
+    SortingSpecs<ItemTypeInfo>::s_sortingFunctions[2] = [](const auto& t0, const auto& t1) noexcept {
+        return std::pair { t0.m_count, t1.m_count };
+    };
+
+    SortingSpecs<ItemTypeInfo>::s_sortingFunctions[3] = [](const auto& t0, const auto& t1) noexcept {
+        return std::pair { SGCore::Utils::getStringAsTime(t0.m_dateOfReceipt).time_since_epoch().count(),
+                           SGCore::Utils::getStringAsTime(t1.m_dateOfReceipt).time_since_epoch().count() };
+    };
+
+    SortingSpecs<ItemTypeInfo>::s_sortingFunctions[4] = [](const auto& t0, const auto& t1) noexcept {
+        return std::pair { SGCore::Utils::getStringAsTime(t0.m_expirationDate).time_since_epoch().count(),
+                           SGCore::Utils::getStringAsTime(t1.m_expirationDate).time_since_epoch().count() };
+    };
+
+    SortingSpecs<ItemTypeInfo>::s_sortingFunctions[5] = [](const auto& t0, const auto& t1) noexcept {
+        return std::pair { SGCore::Utils::getStringAsTime(t0.m_productionDate).time_since_epoch().count(),
+                           SGCore::Utils::getStringAsTime(t1.m_productionDate).time_since_epoch().count() };
     };
 }
 

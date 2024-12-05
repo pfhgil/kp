@@ -10,14 +10,14 @@
 struct Offs
 {
     // PK
-    std::int64_t m_id = 0;
+    std::int32_t m_id = 0;
     // FK FROM ITEMS
-    std::int64_t m_itemID = -1;
+    std::int32_t m_itemID = -1;
     // FK FROM STAFF
-    std::int64_t m_workerID = -1;
+    std::int32_t m_workerID = -1;
     std::string m_reason;
     // FK FROM STORAGES
-    std::int64_t m_storageID = -1;
+    std::int32_t m_storageID = -1;
 };
 
 #endif //PROJ3_OFFS_H

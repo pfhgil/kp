@@ -6,6 +6,7 @@
 #define PROJ3_EMPLOYEE_H
 
 #include <string>
+#include "WorkerRole.h"
 
 struct Worker
 {
@@ -13,7 +14,7 @@ struct Worker
     std::string m_name;
     std::string m_surname;
     std::string m_patronymic;
-    std::string m_role;
+    WorkerRole m_role = WorkerRole::WORKER;
     // FK FROM STORAGES
     std::int32_t m_storageID = -1;
     std::string m_login;

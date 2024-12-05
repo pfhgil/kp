@@ -233,6 +233,31 @@ void Client::deleteStorageByID(const int32_t& id) noexcept
     });
 }
 
+void Client::updateStorageByID(const int32_t& id, const Storage& storage) noexcept
+{
+    Json::Value json;
+    json["value"] = SGCore::Serde::Serializer::toFormat(storage);
+
+    auto req = drogon::HttpRequest::newHttpJsonRequest(json);
+    req->setPath("/api/storages/update/id=" + std::to_string(id));
+    req->setMethod(drogon::HttpMethod::Post);
+    req->addHeader("Authorization", "Bearer " + s_jwtToken);
+
+    s_httpClient->sendRequest(req, [](drogon::ReqResult result, const drogon::HttpResponsePtr& response) {
+        if (result == drogon::ReqResult::Ok &&
+            response->getStatusCode() == drogon::HttpStatusCode::k200OK)
+        {
+            std::cout << "Response received: " << response->body() << ", status: "
+                      << response->getStatusCode() << std::endl;
+        }
+        else
+        {
+            std::cerr << "Request failed, request code: " << static_cast<int>(result)
+                      << ", and status code: " << response->getStatusCode() << std::endl;
+        }
+    });
+}
+
 std::future<Storage> Client::getStorageByID(const int32_t & id) noexcept
 {
     auto req = drogon::HttpRequest::newHttpRequest();

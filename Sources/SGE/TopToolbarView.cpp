@@ -126,11 +126,10 @@ SGE::TopToolbarView::TopToolbarView()
                 case TableType::OFFS:break;
                 case TableType::STORAGES:
                 {
-                    Client::addStorage({
-                        .m_address = "г. Москва",
-                    });
+                    auto wnd = Main::getMainView()->getTablesView()->getUpdateStorageWindow();
 
-                    Main::getMainView()->getTablesView()->reloadTable(TableType::STORAGES);
+                    wnd->setTableUpdateType(TableUpdateType::ADD);
+                    wnd->setActive(true);
 
                     break;
                 }

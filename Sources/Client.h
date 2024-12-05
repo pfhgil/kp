@@ -24,6 +24,7 @@ struct Client
 
     static void addStorage(const Storage& value) noexcept;
     static void deleteStorageByID(const std::int32_t& id) noexcept;
+    static void updateStorageByID(const std::int32_t& id, const Storage& storage) noexcept;
     static std::future<Storage> getStorageByID(const std::int32_t& id) noexcept;
     [[nodiscard]] static std::future<std::vector<Storage>> getAllStorages() noexcept;
 

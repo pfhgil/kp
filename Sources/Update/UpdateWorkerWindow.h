@@ -8,32 +8,21 @@
 #include "SGE/Window.h"
 #include "Models/Worker.h"
 #include "Models/Storage.h"
-#include "Roles.h"
+#include "WorkerRole.h"
 #include "TableUpdateType.h"
+#include "UpdateRecordWindow.h"
 
-struct UpdateWorkerWindow : public SGE::Window
+struct UpdateWorkerWindow : public UpdateRecordWindow<Worker>
 {
-    Worker m_editableWorker { };
-
-    UpdateWorkerWindow() noexcept;
-
     void renderBody() noexcept final;
-    void footerRender() noexcept final;
 
     void onActiveChangedListener() noexcept final;
 
-    void setTableUpdateType(TableUpdateType tableUpdateType) noexcept;
-
 private:
-    TableUpdateType m_tableUpdateType = TableUpdateType::ADD;
+    void submit() noexcept final;
 
-    void submit() noexcept;
-    void cancel() noexcept;
-
-    void drawRoleSelectable(Role role) noexcept;
+    void drawRoleSelectable(WorkerRole role) noexcept;
     void drawStorageSelectable(const Storage& storage) noexcept;
-
-    std::string m_errorMessage;
 
     std::vector<Storage> m_tmpStorages;
 };

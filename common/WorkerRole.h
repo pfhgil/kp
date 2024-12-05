@@ -1,32 +1,32 @@
 //
-// Created by Ilya on 03.12.2024.
+// Created by Ilya on 05.12.2024.
 //
 
-#ifndef PROJ3_ROLES_H
-#define PROJ3_ROLES_H
+#ifndef PROJ3_WORKERROLE_H
+#define PROJ3_WORKERROLE_H
 
 #include <string>
 
-enum class Role
+enum class WorkerRole
 {
     DIRECTOR,       // ЗАВЕДУЮЩИЙ
     STOREKEEPER,    // КЛАДОВЩИК
     WORKER          // РАБОЧИЙ
 };
 
-static std::string roleToString(Role role) noexcept
+static std::string roleToString(WorkerRole role) noexcept
 {
     switch (role)
     {
-        case Role::DIRECTOR:
+        case WorkerRole::DIRECTOR:
             return "Director";
-        case Role::STOREKEEPER:
+        case WorkerRole::STOREKEEPER:
             return "Storekeeper";
-        case Role::WORKER:
+        case WorkerRole::WORKER:
             return "Worker";
     }
 
     return "";
 }
 
-#endif //PROJ3_ROLES_H
+#endif //PROJ3_WORKERROLE_H

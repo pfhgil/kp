@@ -21,6 +21,7 @@ namespace api
             METHOD_ADD(storages::getAllStoragesHandler, "/get_all", drogon::Get, "Utils::JWTAuthFilter");
             METHOD_ADD(storages::addStorageHandler, "/add", drogon::Post, "Utils::JWTAuthFilter");
             METHOD_ADD(storages::deleteStorageByIDHandler, "/delete/id={id}", drogon::Delete, "Utils::JWTAuthFilter");
+            METHOD_ADD(storages::updateStorageByIDHandler, "/update/id={id}", drogon::Post, "Utils::JWTAuthFilter");
             METHOD_ADD(storages::getStorageByIDHandler, "/get/id={id}", drogon::Get, "Utils::JWTAuthFilter");
         PATH_LIST_END
 
@@ -110,6 +111,33 @@ namespace api
                                        Utils::sendResponse("Error deleting storage!", drogon::HttpStatusCode::k400BadRequest,
                                                            callback);
                                    },
+                                   id);
+        }
+
+        void updateStorageByIDHandler(const drogon::HttpRequestPtr& request, Utils::callback_t&& callback, std::int32_t id)
+        {
+            auto dbClient = drogon::app().getDbClient();
+
+            Json::Value jsonBody;
+            auto requestBody = request->getJsonObject();
+
+            std::string deserLog;
+            Storage value;
+            SGCore::Serde::Serializer::fromFormat(requestBody->get("value", {}).asString(), value, deserLog);
+
+            dbClient->execSqlAsync("UPDATE storages SET address = $1 WHERE id = $2",
+                                   [callback, id](const drogon::orm::Result& result) {
+                                       std::cout << "Updated storage with ID: " << id << std::endl;
+                                       Utils::sendResponse("Storage with ID '" + std::to_string(id) + "' updated!",
+                                                           drogon::HttpStatusCode::k200OK, callback
+                                       );
+                                   },
+                                   [callback](const drogon::orm::DrogonDbException& e) {
+                                       std::cerr << "Error updating storage: " << e.base().what() << std::endl;
+                                       Utils::sendResponse("Error updating storage!", drogon::HttpStatusCode::k400BadRequest,
+                                                           callback);
+                                   },
+                                   value.m_address,
                                    id);
         }
 

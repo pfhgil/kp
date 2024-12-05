@@ -82,7 +82,7 @@ namespace api
                                            worker.m_name = row["name"].as<std::string>();
                                            worker.m_surname = row["surname"].as<std::string>();
                                            worker.m_patronymic = row["patronymic"].as<std::string>();
-                                           worker.m_role = row["role"].as<std::string>();
+                                           worker.m_role = static_cast<WorkerRole>(row["role"].as<std::int32_t>());
                                            worker.m_storageID = row["storage_id"].as<int>();
                                            worker.m_login = row["login"].as<std::string>();
                                            worker.m_password = row["password"].as<std::string>();
@@ -122,7 +122,7 @@ namespace api
                                         worker.m_name = result[0]["name"].as<std::string>();
                                         worker.m_surname = result[0]["surname"].as<std::string>();
                                         worker.m_patronymic = result[0]["patronymic"].as<std::string>();
-                                        worker.m_role = result[0]["role"].as<std::string>();
+                                        worker.m_role = static_cast<WorkerRole>(result[0]["role"].as<std::int32_t>());
                                         worker.m_storageID = result[0]["storage_id"].as<int>();
                                         worker.m_login = result[0]["login"].as<std::string>();
                                         worker.m_password = result[0]["password"].as<std::string>();
@@ -162,7 +162,7 @@ namespace api
                                        worker.m_name = result[0]["name"].as<std::string>();
                                        worker.m_surname = result[0]["surname"].as<std::string>();
                                        worker.m_patronymic = result[0]["patronymic"].as<std::string>();
-                                       worker.m_role = result[0]["role"].as<std::string>();
+                                       worker.m_role = static_cast<WorkerRole>(result[0]["role"].as<std::int32_t>());
                                        worker.m_storageID = result[0]["storage_id"].as<int>();
                                        worker.m_login = result[0]["login"].as<std::string>();
                                        worker.m_password = result[0]["password"].as<std::string>();
@@ -257,7 +257,7 @@ namespace api
 
                                        Worker gotWorker;
                                        gotWorker.m_login = result[0]["login"].as<std::string>();
-                                       gotWorker.m_role = result[0]["role"].as<std::string>();
+                                       gotWorker.m_role = static_cast<WorkerRole>(result[0]["role"].as<std::int32_t>());
                                        gotWorker.m_id = result[0]["id"].as<int>();
                                        // generating jwt token
                                        const std::string jwtToken = Utils::generateJWT(gotWorker);

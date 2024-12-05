@@ -58,10 +58,10 @@ namespace SGCore::Serde
                 valueView.m_data->m_patronymic = std::move(*m_patronymic);
             }
 
-            auto m_role = valueView.getValueContainer().template getMember<std::string>("m_role");
+            auto m_role = valueView.getValueContainer().template getMember<WorkerRole>("m_role");
             if(m_role)
             {
-                valueView.m_data->m_role = std::move(*m_role);
+                valueView.m_data->m_role = *m_role;
             }
 
             auto m_storageID = valueView.getValueContainer().template getMember<std::int64_t>("m_storageID");

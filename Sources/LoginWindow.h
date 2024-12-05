@@ -6,6 +6,7 @@
 #define PROJ3_LOGINWINDOW_H
 
 #include "SGE/Window.h"
+#include "WorkerRole.h"
 
 struct LoginWindow : public SGE::Window
 {
@@ -22,6 +23,7 @@ private:
 
     std::string m_currentLogin;
     std::string m_currentPassword;
+    WorkerRole m_workerRole;
 
     std::string m_errorMessage;
 };

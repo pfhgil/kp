@@ -74,8 +74,7 @@ void UpdateWorkerWindow::renderBody() noexcept
             ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 7);
             ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
 
-            auto workerStorage = Client::getStorageByID(m_record.m_storageID).get();
-            if(ImGui::BeginCombo("##StorageCombo", workerStorage.m_address.c_str()))
+            if(ImGui::BeginCombo("##StorageCombo", m_workerStorage.m_address.c_str()))
             {
                 for(const auto& storage : m_tmpStorages)
                 {
@@ -119,7 +118,9 @@ void UpdateWorkerWindow::onActiveChangedListener() noexcept
 {
     UpdateRecordWindow::onActiveChangedListener();
 
-    m_tmpStorages = Client::getAllStorages().get();
+    m_workerStorage = Client::getRecordByID<Storage>(m_record.m_storageID).get();
+
+    m_tmpStorages = Client::getAllRecords<Storage>().get();
 }
 
 void UpdateWorkerWindow::submit() noexcept
@@ -175,10 +176,10 @@ void UpdateWorkerWindow::submit() noexcept
     switch(getTableUpdateType())
     {
         case TableUpdateType::ADD:
-            Client::addWorker(m_record);
+            Client::addRecord(m_record);
             break;
         case TableUpdateType::UPDATE:
-            Client::updateWorkerByID(m_record.m_id, m_record);
+            Client::updateRecord(m_record.m_id, m_record);
             break;
     }
 
@@ -210,6 +211,7 @@ void UpdateWorkerWindow::drawStorageSelectable(const Storage& storage) noexcept
                          m_record.m_storageID == storage.m_id))
     {
         m_record.m_storageID = storage.m_id;
+        m_workerStorage = Client::getRecordByID<Storage>(m_record.m_storageID).get();
     }
 
     if(m_record.m_storageID == storage.m_id)

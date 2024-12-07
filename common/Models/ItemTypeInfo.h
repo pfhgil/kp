@@ -10,6 +10,8 @@
 
 struct ItemTypeInfo
 {
+    static const inline std::string s_parentTableName = "item_type_info";
+
     std::int32_t m_id = -1;
     std::string m_name;
     std::int32_t m_count;

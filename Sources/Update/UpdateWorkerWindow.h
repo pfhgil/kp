@@ -24,6 +24,7 @@ private:
     void drawRoleSelectable(WorkerRole role) noexcept;
     void drawStorageSelectable(const Storage& storage) noexcept;
 
+    Storage m_workerStorage;
     std::vector<Storage> m_tmpStorages;
 };
 

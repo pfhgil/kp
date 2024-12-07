@@ -29,7 +29,7 @@ TablesView::TablesView() noexcept
             {
                 case TableType::STAFF:
                 {
-                    auto editableWorker = Client::getWorkerByID(m_rightClickedRowID).get();
+                    auto editableWorker = Client::getRecordByID<Worker>(m_rightClickedRowID).get();
                     m_updateWorkerWindow->setTableUpdateType(TableUpdateType::UPDATE);
                     m_updateWorkerWindow->m_record = editableWorker;
                     m_updateWorkerWindow->setActive(true);
@@ -40,7 +40,7 @@ TablesView::TablesView() noexcept
                     break;
                 case TableType::STORAGES:
                 {
-                    auto editableStorage = Client::getStorageByID(m_rightClickedRowID).get();
+                    auto editableStorage = Client::getRecordByID<Storage>(m_rightClickedRowID).get();
                     m_updateStorageWindow->setTableUpdateType(TableUpdateType::UPDATE);
                     m_updateStorageWindow->m_record = editableStorage;
                     m_updateStorageWindow->setActive(true);
@@ -137,19 +137,19 @@ void TablesView::reloadTable(TableType tableType) noexcept
     {
         case TableType::STAFF:
         {
-            m_workers = Client::getAllWorkers().get();
+            m_workers = Client::getAllRecords<Worker>().get();
             break;
         }
         case TableType::OFFS:break;
         case TableType::STORAGES:
         {
-            m_storages = Client::getAllStorages().get();
+            m_storages = Client::getAllRecords<Storage>().get();
             break;
         }
         case TableType::SHIPMENTS:break;
         case TableType::ITEM_TYPE_INFO:
         {
-            m_itemsTypeInfo = Client::getAllItemsTypeInfo().get();
+            m_itemsTypeInfo = Client::getAllRecords<ItemTypeInfo>().get();
             break;
         }
         case TableType::ITEMS:break;
@@ -179,10 +179,10 @@ void TablesView::deleteSelectedRows() noexcept
         {
             for(const auto& row : tableSelectedRowsMapping)
             {
-                if(row.second) Client::deleteWorkerByID(row.first);
+                if(row.second) Client::deleteRecord<Worker>(row.first);
             }
 
-            m_workers = Client::getAllWorkers().get();
+            m_workers = Client::getAllRecords<Worker>().get();
             break;
         }
         case TableType::OFFS:
@@ -191,10 +191,10 @@ void TablesView::deleteSelectedRows() noexcept
         {
             for(const auto& row : tableSelectedRowsMapping)
             {
-                if(row.second) Client::deleteStorageByID(row.first);
+                if(row.second) Client::deleteRecord<Storage>(row.first);
             }
 
-            m_storages = Client::getAllStorages().get();
+            m_storages = Client::getAllRecords<Storage>().get();
             break;
         }
         case TableType::SHIPMENTS:
@@ -203,10 +203,10 @@ void TablesView::deleteSelectedRows() noexcept
         {
             for(const auto& row : tableSelectedRowsMapping)
             {
-                if(row.second) Client::deleteItemTypeInfoByID(row.first);
+                if(row.second) Client::deleteRecord<ItemTypeInfo>(row.first);
             }
 
-            m_itemsTypeInfo = Client::getAllItemsTypeInfo().get();
+            m_itemsTypeInfo = Client::getAllRecords<ItemTypeInfo>().get();
             break;
         }
         case TableType::ITEMS:

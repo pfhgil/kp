@@ -10,6 +10,8 @@
 
 struct Worker
 {
+    static const inline std::string s_parentTableName = "staff";
+
     std::int32_t m_id = -1;
     std::string m_name;
     std::string m_surname;

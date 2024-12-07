@@ -152,7 +152,7 @@ SGE::TopToolbarView::TopToolbarView()
                         .m_productionDate = "2001-11-10"
                     };
 
-                    Client::addItemTypeInfo(itemTypeInfo);
+                    Client::addRecord(itemTypeInfo);
 
                     break;
                 }

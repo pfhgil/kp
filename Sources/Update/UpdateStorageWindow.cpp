@@ -38,10 +38,10 @@ void UpdateStorageWindow::submit() noexcept
     switch(getTableUpdateType())
     {
         case TableUpdateType::ADD:
-            Client::addStorage(m_record);
+            Client::addRecord(m_record);
             break;
         case TableUpdateType::UPDATE:
-            Client::updateStorageByID(m_record.m_id, m_record);
+            Client::updateRecord(m_record.m_id, m_record);
             break;
     }
 

@@ -50,7 +50,14 @@ TablesView::TablesView() noexcept
                 case TableType::SHIPMENTS:
                     break;
                 case TableType::ITEM_TYPE_INFO:
+                {
+                    auto editableItemTypeInfo = Client::getRecordByID<ItemTypeInfo>(m_rightClickedRowID).get();
+                    m_updateItemTypeInfoWindow->setTableUpdateType(TableUpdateType::UPDATE);
+                    m_updateItemTypeInfoWindow->m_record = editableItemTypeInfo;
+                    m_updateItemTypeInfoWindow->setActive(true);
+
                     break;
+                }
                 case TableType::ITEMS:
                     break;
                 case TableType::ORDERS:
@@ -70,6 +77,11 @@ TablesView::TablesView() noexcept
     m_updateStorageWindow->setActive(false);
 
     addChild(m_updateStorageWindow);
+
+    m_updateItemTypeInfoWindow = SGCore::MakeRef<UpdateItemTypeInfoWindow>();
+    m_updateItemTypeInfoWindow->setActive(false);
+
+    addChild(m_updateItemTypeInfoWindow);
 
     m_selectedRows.resize(static_cast<int>(TableType::COUNT));
 

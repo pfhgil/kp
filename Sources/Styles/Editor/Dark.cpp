@@ -161,6 +161,10 @@ void SGE::EditorStyles::Dark::apply()
         m_pencilIcon = SGCore::AssetManager::getInstance()->loadAssetWithAlias<SGCore::SVGImage>(
                 "white_pencil_icon",
                 "${projectPath}/Resources/icons/dark_style/pencil.svg");
+
+        m_dateIcon = SGCore::AssetManager::getInstance()->loadAssetWithAlias<SGCore::SVGImage>(
+                "white_date_icon",
+                "${projectPath}/Resources/icons/dark_style/date.svg");
     }
 }
 

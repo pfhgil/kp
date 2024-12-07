@@ -140,19 +140,19 @@ SGE::TopToolbarView::TopToolbarView()
                 case TableType::SHIPMENTS:break;
                 case TableType::ITEM_TYPE_INFO:
                 {
-                    /*auto wnd = Main::getMainView()->getTablesView()->getUpdateStorageWindow();
+                    auto wnd = Main::getMainView()->getTablesView()->getUpdateItemTypeInfoWindow();
 
                     wnd->setTableUpdateType(TableUpdateType::ADD);
-                    wnd->setActive(true);*/
+                    wnd->setActive(true);
 
-                    ItemTypeInfo itemTypeInfo {
+                    /*ItemTypeInfo itemTypeInfo {
                         .m_name = "Металл",
                         .m_dateOfReceipt = "2023-10-24",
                         .m_expirationDate = "2101-11-10",
                         .m_productionDate = "2001-11-10"
                     };
 
-                    Client::addRecord(itemTypeInfo);
+                    Client::addRecord(itemTypeInfo);*/
 
                     break;
                 }

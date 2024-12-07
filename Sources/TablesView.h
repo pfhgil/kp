@@ -11,6 +11,7 @@
 #include "Models/Worker.h"
 #include "Update/UpdateWorkerWindow.h"
 #include "Update/UpdateStorageWindow.h"
+#include "Update/UpdateItemTypeInfoWindow.h"
 #include "SGE/Popup.h"
 #include "Models/ItemTypeInfo.h"
 
@@ -41,6 +42,11 @@ struct TablesView : public SGCore::ImGuiWrap::IView
         return m_updateStorageWindow;
     }
 
+    [[nodiscard]] auto getUpdateItemTypeInfoWindow() const noexcept
+    {
+        return m_updateItemTypeInfoWindow;
+    }
+
 private:
     std::string m_error;
 
@@ -52,6 +58,7 @@ private:
 
     SGCore::Ref<UpdateWorkerWindow> m_updateWorkerWindow;
     SGCore::Ref<UpdateStorageWindow> m_updateStorageWindow;
+    SGCore::Ref<UpdateItemTypeInfoWindow> m_updateItemTypeInfoWindow;
 
     SGE::Popup m_rowPopup;
 

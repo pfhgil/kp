@@ -64,6 +64,8 @@ namespace SGE
         SGCore::AssetRef<SGCore::SVGImage> m_greenDebugRun;
         SGCore::AssetRef<SGCore::SVGImage> m_reloadIcon;
 
+        SGCore::AssetRef<SGCore::SVGImage> m_dateIcon;
+
         std::unordered_map<std::string, ImFont*> m_fonts;
 
         std::array<ImVec4, ImGuiCol_COUNT> m_initialColors;

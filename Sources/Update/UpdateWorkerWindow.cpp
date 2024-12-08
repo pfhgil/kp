@@ -22,7 +22,7 @@ void UpdateWorkerWindow::renderBody() noexcept
             ImGui::TableNextColumn();
             ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 7);
             ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-            ImGui::InputText("##Name", &m_record.m_name);
+            ImGui::InputText("##Name", &m_record.name);
         }
 
         ImGui::TableNextRow();
@@ -33,7 +33,7 @@ void UpdateWorkerWindow::renderBody() noexcept
             ImGui::TableNextColumn();
             ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 7);
             ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-            ImGui::InputText("##Surname", &m_record.m_surname);
+            ImGui::InputText("##Surname", &m_record.surname);
         }
 
         ImGui::TableNextRow();
@@ -44,7 +44,7 @@ void UpdateWorkerWindow::renderBody() noexcept
             ImGui::TableNextColumn();
             ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 7);
             ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-            ImGui::InputText("##Patronymic", &m_record.m_patronymic);
+            ImGui::InputText("##Patronymic", &m_record.patronymic);
         }
 
         ImGui::TableNextRow();
@@ -55,7 +55,7 @@ void UpdateWorkerWindow::renderBody() noexcept
             ImGui::TableNextColumn();
             ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 7);
             ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-            if(ImGui::BeginCombo("##RoleCombo", roleToString(m_record.m_role).c_str()))
+            if(ImGui::BeginCombo("##RoleCombo", roleToString(m_record.role).c_str()))
             {
                 drawRoleSelectable(WorkerRole::DIRECTOR);
                 drawRoleSelectable(WorkerRole::STOREKEEPER);
@@ -74,7 +74,7 @@ void UpdateWorkerWindow::renderBody() noexcept
             ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 7);
             ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
 
-            if(ImGui::BeginCombo("##StorageCombo", m_workerStorage.m_address.c_str()))
+            if(ImGui::BeginCombo("##StorageCombo", m_workerStorage.address.c_str()))
             {
                 for(const auto& storage : m_tmpStorages)
                 {
@@ -93,7 +93,7 @@ void UpdateWorkerWindow::renderBody() noexcept
             ImGui::TableNextColumn();
             ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 7);
             ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-            ImGui::InputText("##Login", &m_record.m_login);
+            ImGui::InputText("##Login", &m_record.login);
         }
 
         if(getTableUpdateType() != TableUpdateType::UPDATE)
@@ -106,7 +106,7 @@ void UpdateWorkerWindow::renderBody() noexcept
                 ImGui::TableNextColumn();
                 ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 7);
                 ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-                ImGui::InputText("##Password", &m_record.m_password);
+                ImGui::InputText("##Password", &m_record.password);
             }
         }
 
@@ -118,51 +118,51 @@ void UpdateWorkerWindow::onActiveChangedListener() noexcept
 {
     UpdateRecordWindow::onActiveChangedListener();
 
-    m_workerStorage = Client::getRecordByID<Storage>(m_record.m_storageID).get();
+    m_workerStorage = Client::getRecordByID<Storage>(m_record.storage_id).get();
 
     m_tmpStorages = Client::getAllRecords<Storage>().get();
 }
 
 void UpdateWorkerWindow::submit() noexcept
 {
-    if(m_record.m_name.empty())
+    if(m_record.name.empty())
     {
         m_errorMessage = "Field 'name' should not be empty";
         return;
     }
 
-    if(m_record.m_surname.empty())
+    if(m_record.surname.empty())
     {
         m_errorMessage = "Field 'surname' should not be empty";
         return;
     }
 
-    if(m_record.m_storageID == -1)
+    if(m_record.storage_id == -1)
     {
         m_errorMessage = "Please, select storage (field 'Storage')";
         return;
     }
 
-    if(m_record.m_login.empty())
+    if(m_record.login.empty())
     {
         m_errorMessage = "Field 'login' should not be empty";
         return;
     }
 
-    if(m_record.m_password.empty())
+    if(m_record.password.empty())
     {
         m_errorMessage = "Field 'password' should not be empty";
         return;
     }
 
-    if(m_record.m_login.empty())
+    if(m_record.login.empty())
     {
         m_errorMessage = "Field 'login' should not be empty";
         return;
     }
 
-    auto workerWithThatLogin = Client::getWorkerByLogin(m_record.m_login).get();
-    if(workerWithThatLogin.m_id != -1 && workerWithThatLogin.m_id != m_record.m_id)
+    auto workerWithThatLogin = Client::getWorkerByLogin(m_record.login).get();
+    if(workerWithThatLogin.id != -1 && workerWithThatLogin.id != m_record.id)
     {
         m_errorMessage = "Worker with this login is already exists";
         return;
@@ -170,7 +170,7 @@ void UpdateWorkerWindow::submit() noexcept
 
     if(getTableUpdateType() != TableUpdateType::UPDATE)
     {
-        m_record.m_password = std::to_string(SGCore::hashString(m_record.m_password));
+        m_record.password = std::to_string(SGCore::hashString(m_record.password));
     }
 
     switch(getTableUpdateType())
@@ -179,7 +179,7 @@ void UpdateWorkerWindow::submit() noexcept
             Client::addRecord(m_record);
             break;
         case TableUpdateType::UPDATE:
-            Client::updateRecord(m_record.m_id, m_record);
+            Client::updateRecord(m_record.id, m_record);
             break;
     }
 
@@ -194,12 +194,12 @@ void UpdateWorkerWindow::submit() noexcept
 void UpdateWorkerWindow::drawRoleSelectable(WorkerRole role) noexcept
 {
     if(ImGui::Selectable(roleToString(role).c_str(),
-                         m_record.m_role == role))
+                         m_record.role == role))
     {
-        m_record.m_role = role;
+        m_record.role = role;
     }
 
-    if(m_record.m_role == role)
+    if(m_record.role == role)
     {
         ImGui::SetItemDefaultFocus();
     }
@@ -207,14 +207,14 @@ void UpdateWorkerWindow::drawRoleSelectable(WorkerRole role) noexcept
 
 void UpdateWorkerWindow::drawStorageSelectable(const Storage& storage) noexcept
 {
-    if(ImGui::Selectable(storage.m_address.c_str(),
-                         m_record.m_storageID == storage.m_id))
+    if(ImGui::Selectable(storage.address.c_str(),
+                         m_record.storage_id == storage.id))
     {
-        m_record.m_storageID = storage.m_id;
-        m_workerStorage = Client::getRecordByID<Storage>(m_record.m_storageID).get();
+        m_record.storage_id = storage.id;
+        m_workerStorage = Client::getRecordByID<Storage>(m_record.storage_id).get();
     }
 
-    if(m_record.m_storageID == storage.m_id)
+    if(m_record.storage_id == storage.id)
     {
         ImGui::SetItemDefaultFocus();
     }

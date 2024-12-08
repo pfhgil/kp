@@ -9,13 +9,13 @@
 
 struct Order
 {
-    std::int32_t m_id = 0;
+    std::int32_t id = 0;
     // FK FROM PROVIDERS
-    std::int32_t m_providerID = -1;
+    std::int32_t provider_id = -1;
     // FK FROM item_type_info
-    std::int32_t m_itemTypeInfoID = -1;
-    std::int32_t m_orderedCount = 0;
-    float m_cost = 0.0f;
+    std::int32_t item_type_info_id = -1;
+    std::int32_t ordered_count = 0;
+    float cost = 0.0f;
 };
 
 #endif //PROJ3_ORDER_H

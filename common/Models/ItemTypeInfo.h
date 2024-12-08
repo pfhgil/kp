@@ -12,12 +12,12 @@ struct ItemTypeInfo
 {
     static const inline std::string s_parentTableName = "item_type_info";
 
-    std::int32_t m_id = -1;
-    std::string m_name;
-    std::int32_t m_count;
-    std::string m_dateOfReceipt;
-    std::string m_expirationDate;
-    std::string m_productionDate;
+    std::int32_t id = -1;
+    std::string name;
+    std::int32_t count;
+    std::string date_of_receipt;
+    std::string expiration_date;
+    std::string production_date;
 };
 
 #endif //PROJ3_ITEMTYPEINFO_H

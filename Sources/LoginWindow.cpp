@@ -94,7 +94,7 @@ void LoginWindow::submit() noexcept
     Client::auth(m_currentLogin, std::to_string(SGCore::hashString(m_currentPassword)));
     if(Client::isAuthValid(Client::getJWTToken()).get())
     {
-        m_workerRole = Client::getWorkerByLogin(m_currentLogin).get().m_role;
+        m_workerRole = Client::getWorkerByLogin(m_currentLogin).get().role;
 
         setActive(false);
         Main::getMainView()->getTablesView()->reloadAllTables();

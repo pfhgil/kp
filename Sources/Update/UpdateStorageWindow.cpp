@@ -20,7 +20,7 @@ void UpdateStorageWindow::renderBody() noexcept
             ImGui::TableNextColumn();
             ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 7);
             ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-            ImGui::InputText("##Address", &m_record.m_address);
+            ImGui::InputText("##Address", &m_record.address);
         }
 
         ImGui::EndTable();
@@ -29,7 +29,7 @@ void UpdateStorageWindow::renderBody() noexcept
 
 void UpdateStorageWindow::submit() noexcept
 {
-    if(m_record.m_address.empty())
+    if(m_record.address.empty())
     {
         m_errorMessage = "Field 'name' should not be empty";
         return;
@@ -41,7 +41,7 @@ void UpdateStorageWindow::submit() noexcept
             Client::addRecord(m_record);
             break;
         case TableUpdateType::UPDATE:
-            Client::updateRecord(m_record.m_id, m_record);
+            Client::updateRecord(m_record.id, m_record);
             break;
     }
 

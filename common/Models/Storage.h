@@ -11,8 +11,8 @@ struct Storage
 {
     static const inline std::string s_parentTableName = "storages";
 
-    std::int32_t m_id = -1;
-    std::string m_address;
+    std::int32_t id = -1;
+    std::string address;
 };
 
 #endif //PROJ3_STORAGE_H

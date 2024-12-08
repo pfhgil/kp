@@ -110,7 +110,7 @@ struct Client
                 T value;
                 std::string deserLog;
                 SGCore::Serde::Serializer::fromFormat((*response->getJsonObject())["value"].asString(), value, deserLog);
-                std::cout << "Got record with id " << value.m_id
+                std::cout << "Got record with id " << value.id
                           << " from table '" + T::s_parentTableName + "', status: "
                           << response->getStatusCode() << std::endl;
 

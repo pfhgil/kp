@@ -34,7 +34,7 @@ std::future<Worker> Client::getWorkerByLogin(const std::string& login) noexcept
             Worker worker;
             std::string deserLog;
             SGCore::Serde::Serializer::fromFormat((*response->getJsonObject())["value"].asString(), worker, deserLog);
-            std::cout << "Got worker with login " << worker.m_login << ", status: " << response->getStatusCode() << std::endl;
+            std::cout << "Got worker with login " << worker.login << ", status: " << response->getStatusCode() << std::endl;
 
             valuePromise->set_value(worker);
         }

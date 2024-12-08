@@ -259,10 +259,10 @@ void TablesView::drawStaffTable() noexcept
 
             ImGui::TableNextColumn();
 
-            ImGui::PushID(record.m_id);
+            ImGui::PushID(record.id);
 
             auto& currentSelectedRowsMap = m_selectedRows[static_cast<int>(m_tableType)];
-            auto& isSelected = currentSelectedRowsMap[record.m_id];
+            auto& isSelected = currentSelectedRowsMap[record.id];
             auto tmpIsSelected = isSelected;
 
             if(ImGui::Selectable(
@@ -279,39 +279,39 @@ void TablesView::drawStaffTable() noexcept
                 {
                     // оставляем только текущую строку
                     currentSelectedRowsMap = { };
-                    currentSelectedRowsMap[record.m_id] = true;
+                    currentSelectedRowsMap[record.id] = true;
                 }
             }
 
             if(ImGui::IsItemClicked(ImGuiMouseButton_Right))
             {
                 m_openPopup = true;
-                m_rightClickedRowID = record.m_id;
+                m_rightClickedRowID = record.id;
             }
 
             ImGui::SameLine();
-            ImGui::Text(std::to_string(record.m_id).c_str());
+            ImGui::Text(std::to_string(record.id).c_str());
 
             ImGui::TableNextColumn();
-            ImGui::Text(record.m_name.c_str());
+            ImGui::Text(record.name.c_str());
 
             ImGui::TableNextColumn();
-            ImGui::Text(record.m_surname.c_str());
+            ImGui::Text(record.surname.c_str());
 
             ImGui::TableNextColumn();
-            ImGui::Text(record.m_patronymic.c_str());
+            ImGui::Text(record.patronymic.c_str());
 
             ImGui::TableNextColumn();
-            ImGui::Text(roleToString(record.m_role).c_str());
+            ImGui::Text(roleToString(record.role).c_str());
 
             ImGui::TableNextColumn();
-            ImGui::Text(std::to_string(record.m_storageID).c_str());
+            ImGui::Text(std::to_string(record.storage_id).c_str());
 
             ImGui::TableNextColumn();
-            ImGui::Text(record.m_login.c_str());
+            ImGui::Text(record.login.c_str());
 
             ImGui::TableNextColumn();
-            ImGui::Text(record.m_password.c_str());
+            ImGui::Text(record.password.c_str());
 
             ImGui::PopID();
 
@@ -341,10 +341,10 @@ void TablesView::drawStoragesTable() noexcept
             ImGui::TableNextRow();
             ImGui::TableNextColumn();
 
-            ImGui::PushID(("StoragesRow" + std::to_string(record.m_id)).c_str());
+            ImGui::PushID(("StoragesRow" + std::to_string(record.id)).c_str());
 
             auto& currentSelectedRowsMap = m_selectedRows[static_cast<int>(m_tableType)];
-            auto& isSelected = currentSelectedRowsMap[record.m_id];
+            auto& isSelected = currentSelectedRowsMap[record.id];
             auto tmpIsSelected = isSelected;
 
             if(ImGui::Selectable(
@@ -361,21 +361,21 @@ void TablesView::drawStoragesTable() noexcept
                 {
                     // оставляем только текущую строку
                     currentSelectedRowsMap = { };
-                    currentSelectedRowsMap[record.m_id] = true;
+                    currentSelectedRowsMap[record.id] = true;
                 }
             }
 
             if(ImGui::IsItemClicked(ImGuiMouseButton_Right))
             {
                 m_openPopup = true;
-                m_rightClickedRowID = record.m_id;
+                m_rightClickedRowID = record.id;
             }
 
             ImGui::SameLine();
-            ImGui::Text(std::to_string(record.m_id).c_str());
+            ImGui::Text(std::to_string(record.id).c_str());
 
             ImGui::TableNextColumn();
-            ImGui::Text(record.m_address.c_str());
+            ImGui::Text(record.address.c_str());
 
             ImGui::PopID();
 
@@ -409,10 +409,10 @@ void TablesView::drawItemsTypeInfoTable() noexcept
             ImGui::TableNextRow();
             ImGui::TableNextColumn();
 
-            ImGui::PushID(("ItemTypeInfoRow" + std::to_string(record.m_id)).c_str());
+            ImGui::PushID(("ItemTypeInfoRow" + std::to_string(record.id)).c_str());
 
             auto& currentSelectedRowsMap = m_selectedRows[static_cast<int>(m_tableType)];
-            auto& isSelected = currentSelectedRowsMap[record.m_id];
+            auto& isSelected = currentSelectedRowsMap[record.id];
             auto tmpIsSelected = isSelected;
 
             if(ImGui::Selectable(
@@ -429,33 +429,33 @@ void TablesView::drawItemsTypeInfoTable() noexcept
                 {
                     // оставляем только текущую строку
                     currentSelectedRowsMap = { };
-                    currentSelectedRowsMap[record.m_id] = true;
+                    currentSelectedRowsMap[record.id] = true;
                 }
             }
 
             if(ImGui::IsItemClicked(ImGuiMouseButton_Right))
             {
                 m_openPopup = true;
-                m_rightClickedRowID = record.m_id;
+                m_rightClickedRowID = record.id;
             }
 
             ImGui::SameLine();
-            ImGui::Text(std::to_string(record.m_id).c_str());
+            ImGui::Text(std::to_string(record.id).c_str());
 
             ImGui::TableNextColumn();
-            ImGui::Text(record.m_name.c_str());
+            ImGui::Text(record.name.c_str());
 
             ImGui::TableNextColumn();
-            ImGui::Text(std::to_string(record.m_count).c_str());
+            ImGui::Text(std::to_string(record.count).c_str());
 
             ImGui::TableNextColumn();
-            ImGui::Text(record.m_dateOfReceipt.c_str());
+            ImGui::Text(record.date_of_receipt.c_str());
 
             ImGui::TableNextColumn();
-            ImGui::Text(record.m_expirationDate.c_str());
+            ImGui::Text(record.expiration_date.c_str());
 
             ImGui::TableNextColumn();
-            ImGui::Text(record.m_productionDate.c_str());
+            ImGui::Text(record.production_date.c_str());
 
             ImGui::PopID();
 
@@ -469,76 +469,76 @@ void TablesView::drawItemsTypeInfoTable() noexcept
 void TablesView::initializeSortingSpecsForWorkers() const noexcept
 {
     SortingSpecs<Worker>::s_sortingFunctions[0] = [](const auto& t0, const auto& t1) noexcept {
-        return std::pair { t0.m_id, t1.m_id };
+        return std::pair { t0.id, t1.id };
     };
 
     SortingSpecs<Worker>::s_sortingFunctions[1] = [](const auto& t0, const auto& t1) noexcept {
-        return std::pair { t0.m_name.size(), t1.m_name.size() };
+        return std::pair { t0.name.size(), t1.name.size() };
     };
 
     SortingSpecs<Worker>::s_sortingFunctions[2] = [](const auto& t0, const auto& t1) noexcept {
-        return std::pair { t0.m_surname.size(), t1.m_surname.size() };
+        return std::pair { t0.surname.size(), t1.surname.size() };
     };
 
     SortingSpecs<Worker>::s_sortingFunctions[3] = [](const auto& t0, const auto& t1) noexcept {
-        return std::pair { t0.m_patronymic.size(), t1.m_patronymic.size() };
+        return std::pair { t0.patronymic.size(), t1.patronymic.size() };
     };
 
     SortingSpecs<Worker>::s_sortingFunctions[4] = [](const auto& t0, const auto& t1) noexcept {
-        return std::pair { static_cast<std::int32_t>(t0.m_role), static_cast<std::int32_t>(t1.m_role) };
+        return std::pair { static_cast<std::int32_t>(t0.role), static_cast<std::int32_t>(t1.role) };
     };
 
     SortingSpecs<Worker>::s_sortingFunctions[5] = [](const auto& t0, const auto& t1) noexcept {
-        return std::pair { t0.m_storageID, t1.m_storageID };
+        return std::pair { t0.storage_id, t1.storage_id };
     };
 
     SortingSpecs<Worker>::s_sortingFunctions[6] = [](const auto& t0, const auto& t1) noexcept {
-        return std::pair { t0.m_login.size(), t1.m_login.size() };
+        return std::pair { t0.login.size(), t1.login.size() };
     };
 
     SortingSpecs<Worker>::s_sortingFunctions[7] = [](const auto& t0, const auto& t1) noexcept {
-        return std::pair { t0.m_password.size(), t1.m_password.size() };
+        return std::pair { t0.password.size(), t1.password.size() };
     };
 }
 
 void TablesView::initializeSortingSpecsForStorages() const noexcept
 {
     SortingSpecs<Storage>::s_sortingFunctions[0] = [](const auto& t0, const auto& t1) noexcept {
-        return std::pair { t0.m_id, t1.m_id };
+        return std::pair { t0.id, t1.id };
     };
 
     SortingSpecs<Storage>::s_sortingFunctions[1] = [](const auto& t0, const auto& t1) noexcept {
-        return std::pair { t0.m_address.size(), t1.m_address.size() };
+        return std::pair { t0.address.size(), t1.address.size() };
     };
 }
 
 void TablesView::initializeSortingSpecsForItemsTypeInfo() const noexcept
 {
     SortingSpecs<ItemTypeInfo>::s_sortingFunctions[0] = [](const auto& t0, const auto& t1) noexcept {
-        return std::pair { t0.m_id, t1.m_id };
+        return std::pair { t0.id, t1.id };
     };
 
     SortingSpecs<ItemTypeInfo>::s_sortingFunctions[1] = [](const auto& t0, const auto& t1) noexcept {
-        return std::pair { t0.m_name.size(), t1.m_name.size() };
+        return std::pair { t0.name.size(), t1.name.size() };
     };
 
     SortingSpecs<ItemTypeInfo>::s_sortingFunctions[2] = [](const auto& t0, const auto& t1) noexcept {
-        return std::pair { t0.m_count, t1.m_count };
+        return std::pair { t0.count, t1.count };
     };
 
     SortingSpecs<ItemTypeInfo>::s_sortingFunctions[3] = [](const auto& t0, const auto& t1) noexcept {
-        return std::pair { SGCore::Utils::getStringAsTime(t0.m_dateOfReceipt).time_since_epoch().count(),
-                           SGCore::Utils::getStringAsTime(t1.m_dateOfReceipt).time_since_epoch().count() };
+        return std::pair { SGCore::Utils::getStringAsTime(t0.date_of_receipt).time_since_epoch().count(),
+                           SGCore::Utils::getStringAsTime(t1.date_of_receipt).time_since_epoch().count() };
     };
 
     SortingSpecs<ItemTypeInfo>::s_sortingFunctions[4] = [](const auto& t0, const auto& t1) noexcept {
-        return std::pair { SGCore::Utils::getStringAsTime(t0.m_expirationDate).time_since_epoch().count(),
-                           SGCore::Utils::getStringAsTime(t1.m_expirationDate).time_since_epoch().count() };
+        return std::pair { SGCore::Utils::getStringAsTime(t0.expiration_date).time_since_epoch().count(),
+                           SGCore::Utils::getStringAsTime(t1.expiration_date).time_since_epoch().count() };
     };
 
     SortingSpecs<ItemTypeInfo>::s_sortingFunctions[5] = [](const auto& t0, const auto& t1) noexcept {
-        return std::pair { SGCore::Utils::getStringAsTime(t0.m_productionDate).time_since_epoch().count(),
-                           SGCore::Utils::getStringAsTime(t1.m_productionDate).time_since_epoch().count() };
+        return std::pair { SGCore::Utils::getStringAsTime(t0.production_date).time_since_epoch().count(),
+                           SGCore::Utils::getStringAsTime(t1.production_date).time_since_epoch().count() };
     };
 }
 

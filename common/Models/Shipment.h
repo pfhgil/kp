@@ -9,13 +9,13 @@
 
 struct Shipment
 {
-    std::int32_t m_id = 0;
+    std::int32_t id = 0;
     // FK FROM STORAGES
-    std::int32_t m_storageID = -1;
+    std::int32_t storage_id = -1;
     // FK FROM STAFF
-    std::int32_t m_workerID = -1;
+    std::int32_t worker_id = -1;
     // FK FROM ORDERS
-    std::int32_t m_orderID = -1;
+    std::int32_t order_id = -1;
 };
 
 #endif //PROJ3_SHIPMENT_H

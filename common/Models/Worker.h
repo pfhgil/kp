@@ -12,15 +12,15 @@ struct Worker
 {
     static const inline std::string s_parentTableName = "staff";
 
-    std::int32_t m_id = -1;
-    std::string m_name;
-    std::string m_surname;
-    std::string m_patronymic;
-    WorkerRole m_role = WorkerRole::WORKER;
+    std::int32_t id = -1;
+    std::string name;
+    std::string surname;
+    std::string patronymic;
+    WorkerRole role = WorkerRole::WORKER;
     // FK FROM STORAGES
-    std::int32_t m_storageID = -1;
-    std::string m_login;
-    std::string m_password;
+    std::int32_t storage_id = -1;
+    std::string login;
+    std::string password;
 };
 
 #endif //PROJ3_EMPLOYEE_H

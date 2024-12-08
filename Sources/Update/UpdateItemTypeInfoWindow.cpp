@@ -36,7 +36,7 @@ void UpdateItemTypeInfoWindow::renderBody() noexcept
             ImGui::TableNextColumn();
             ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 7);
             ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-            ImGui::InputText("##Name", &m_record.m_name);
+            ImGui::InputText("##Name", &m_record.name);
 
             ImGui::TableNextColumn();
         }
@@ -49,9 +49,9 @@ void UpdateItemTypeInfoWindow::renderBody() noexcept
             ImGui::TableNextColumn();
             ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 7);
             ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-            if(ImGui::InputInt("##Count", &m_record.m_count))
+            if(ImGui::InputInt("##Count", &m_record.count))
             {
-                m_record.m_count = std::max(m_record.m_count, 0);
+                m_record.count = std::max(m_record.count, 0);
             }
 
             ImGui::TableNextColumn();
@@ -138,13 +138,13 @@ void UpdateItemTypeInfoWindow::renderBody() noexcept
 
 void UpdateItemTypeInfoWindow::submit() noexcept
 {
-    if(m_record.m_name.empty())
+    if(m_record.name.empty())
     {
         m_errorMessage = "Field 'name' should not be empty!";
         return;
     }
 
-    if(m_record.m_count < 0)
+    if(m_record.count < 0)
     {
         m_errorMessage = "'Count' can not be negative!";
         return;
@@ -168,9 +168,9 @@ void UpdateItemTypeInfoWindow::submit() noexcept
         return;
     }
 
-    m_record.m_dateOfReceipt = m_tmpDateOfReceipt;
-    m_record.m_expirationDate = m_tmpExpirationDate;
-    m_record.m_productionDate = m_tmpProductionDate;
+    m_record.date_of_receipt = m_tmpDateOfReceipt;
+    m_record.expiration_date = m_tmpExpirationDate;
+    m_record.production_date = m_tmpProductionDate;
 
     switch(getTableUpdateType())
     {
@@ -181,7 +181,7 @@ void UpdateItemTypeInfoWindow::submit() noexcept
         }
         case TableUpdateType::UPDATE:
         {
-            Client::updateRecord(m_record.m_id, m_record);
+            Client::updateRecord(m_record.id, m_record);
             break;
         }
     }
@@ -200,8 +200,8 @@ void UpdateItemTypeInfoWindow::onActiveChangedListener() noexcept
 
     if(isActive())
     {
-        m_tmpDateOfReceipt = m_record.m_dateOfReceipt;
-        m_tmpExpirationDate = m_record.m_expirationDate;
-        m_tmpProductionDate = m_record.m_productionDate;
+        m_tmpDateOfReceipt = m_record.date_of_receipt;
+        m_tmpExpirationDate = m_record.expiration_date;
+        m_tmpProductionDate = m_record.production_date;
     }
 }

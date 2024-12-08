@@ -27,148 +27,32 @@ namespace api
 
         void getAllStoragesHandler(const drogon::HttpRequestPtr& request, Utils::callback_t&& callback)
         {
-            auto dbClient = drogon::app().getDbClient();
-
-            dbClient->execSqlAsync("SELECT id, address FROM storages",
-                                   [callback](const drogon::orm::Result& result) {
-                                       std::vector<Storage> storages;
-
-                                       for (const auto& row: result)
-                                       {
-                                           Storage storage;
-
-                                           storage.m_id = row["id"].as<int>();
-                                           storage.m_address = row["address"].as<std::string>();
-
-                                           storages.push_back(storage);
-                                       }
-
-                                       const std::string req =
-                                               "Selected " + std::to_string(result.size()) + " storages.";
-                                       std::cout << req << std::endl;
-                                       Utils::sendResponse(SGCore::Serde::Serializer::toFormat(storages),
-                                                           drogon::HttpStatusCode::k200OK, callback, "value");
-                                   },
-                                   [callback](const drogon::orm::DrogonDbException& e) {
-                                       std::cerr << "Error selecting storages: " << e.base().what() << std::endl;
-                                       Utils::sendResponse("Error selecting storages!", drogon::HttpStatusCode::k400BadRequest,
-                                                           callback);
-                                   });
+            Common::getAllRecords<Storage>(request, std::forward<Utils::callback_t>(callback));
         }
 
         void addStorageHandler(const drogon::HttpRequestPtr& request, Utils::callback_t&& callback)
         {
-            auto dbClient = drogon::app().getDbClient();
-
-            Json::Value jsonBody;
-            auto requestBody = request->getJsonObject();
-
-            std::string deserLog;
-            Storage value;
-            SGCore::Serde::Serializer::fromFormat(requestBody->get("value", {}).asString(), value, deserLog);
-
-            dbClient->execSqlAsync("INSERT INTO storages (id, address) "
-                                   "VALUES (DEFAULT, $1) RETURNING id",
-                                   [callback](const drogon::orm::Result& result) {
-                                       if (!result.empty())
-                                       {
-                                           std::cout << "Inserted storage ID: " << result[0]["id"].as<int>()
-                                                     << std::endl;
-                                           Utils::sendResponse(
-                                                   "Inserted storage ID: " + std::to_string(result[0]["id"].as<int>()),
-                                                   drogon::HttpStatusCode::k200OK, callback
-                                           );
-                                       }
-
-                                       Utils::sendResponse(
-                                                   "Error inserting storage!",
-                                                   drogon::HttpStatusCode::k400BadRequest, callback
-                                       );
-                                   },
-                                   [callback](const drogon::orm::DrogonDbException& e) {
-                                       std::cerr << "Error inserting storage: " << e.base().what() << std::endl;
-                                       Utils::sendResponse("Error inserting storage!", drogon::HttpStatusCode::k400BadRequest,
-                                                           callback
-                                       );
-
-                                   },
-                                   value.m_address);
+            Common::addRecord<Storage, 1>
+                    (request, std::forward<Utils::callback_t>(callback),
+                     "INSERT INTO storages (id, address) "
+                     "VALUES (DEFAULT, $1) RETURNING id");
         }
 
         void deleteStorageByIDHandler(const drogon::HttpRequestPtr& request, Utils::callback_t&& callback, std::int32_t id)
         {
-            auto dbClient = drogon::app().getDbClient();
-
-            dbClient->execSqlAsync("DELETE FROM storages WHERE id = $1",
-                                   [callback, id](const drogon::orm::Result& result) {
-                                       std::cout << "Delete storage with ID: " << id << std::endl;
-                                       Utils::sendResponse("Storage with ID '" + std::to_string(id) + "' deleted!",
-                                                           drogon::HttpStatusCode::k200OK, callback
-                                       );
-                                   },
-                                   [callback](const drogon::orm::DrogonDbException& e) {
-                                       std::cerr << "Error deleting storage: " << e.base().what() << std::endl;
-                                       Utils::sendResponse("Error deleting storage!", drogon::HttpStatusCode::k400BadRequest,
-                                                           callback);
-                                   },
-                                   id);
+            Common::deleteRecordByID<Storage>(request, std::forward<Utils::callback_t>(callback), id);
         }
 
         void updateStorageByIDHandler(const drogon::HttpRequestPtr& request, Utils::callback_t&& callback, std::int32_t id)
         {
-            auto dbClient = drogon::app().getDbClient();
-
-            Json::Value jsonBody;
-            auto requestBody = request->getJsonObject();
-
-            std::string deserLog;
-            Storage value;
-            SGCore::Serde::Serializer::fromFormat(requestBody->get("value", {}).asString(), value, deserLog);
-
-            dbClient->execSqlAsync("UPDATE storages SET address = $1 WHERE id = $2",
-                                   [callback, id](const drogon::orm::Result& result) {
-                                       std::cout << "Updated storage with ID: " << id << std::endl;
-                                       Utils::sendResponse("Storage with ID '" + std::to_string(id) + "' updated!",
-                                                           drogon::HttpStatusCode::k200OK, callback
-                                       );
-                                   },
-                                   [callback](const drogon::orm::DrogonDbException& e) {
-                                       std::cerr << "Error updating storage: " << e.base().what() << std::endl;
-                                       Utils::sendResponse("Error updating storage!", drogon::HttpStatusCode::k400BadRequest,
-                                                           callback);
-                                   },
-                                   value.m_address,
-                                   id);
+            Common::updateRecordByID<Storage, 1>(
+                    request, std::forward<Utils::callback_t>(callback),
+                    "UPDATE storages SET address = $1 WHERE id = $2", id);
         }
 
         void getStorageByIDHandler(const drogon::HttpRequestPtr& request, Utils::callback_t&& callback, std::int32_t id)
         {
-            auto dbClient = drogon::app().getDbClient();
-
-            dbClient->execSqlAsync("SELECT * FROM storages WHERE id = $1",
-                                   [callback, id](const drogon::orm::Result& result) {
-                                        if(result.empty())
-                                        {
-                                            Utils::sendResponse("{}",drogon::HttpStatusCode::k204NoContent, callback);
-                                            return;
-                                        }
-
-                                        Storage gotStorage;
-                                        gotStorage.m_id = result[0]["id"].as<int>();
-                                        gotStorage.m_address = result[0]["address"].as<std::string>();
-
-                                        std::cout << "Got storage by ID: " << id << std::endl;
-
-                                        Utils::sendResponse(SGCore::Serde::Serializer::toFormat(gotStorage),
-                                                            drogon::HttpStatusCode::k200OK, callback, "value"
-                                        );
-                                   },
-                                   [callback](const drogon::orm::DrogonDbException& e) {
-                                       std::cerr << "Error getting storage: " << e.base().what() << std::endl;
-                                       Utils::sendResponse("Error getting storage!", drogon::HttpStatusCode::k400BadRequest,
-                                                           callback);
-                                   },
-                                   id);
+            Common::getRecordBy<Storage>(request, std::forward<Utils::callback_t>(callback), "id", id);
         }
     };
 }

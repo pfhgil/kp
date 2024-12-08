@@ -11,8 +11,8 @@ struct Provider
 {
     static const inline std::string s_parentTableName = "providers";
 
-    std::int32_t m_id = 0;
-    std::string m_name;
+    std::int32_t id = 0;
+    std::string name;
 };
 
 #endif //PROJ3_PROVIDER_H

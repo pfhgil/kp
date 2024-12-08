@@ -9,6 +9,8 @@
 
 struct Item
 {
+    static const inline std::string s_parentTableName = "items";
+
     std::int64_t m_id = 0;
     // FK FROM PROVIDERS
     std::int64_t m_providerID = -1;

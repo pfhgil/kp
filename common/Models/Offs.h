@@ -9,6 +9,8 @@
 
 struct Offs
 {
+    static const inline std::string s_parentTableName = "offs";
+
     // PK
     std::int32_t id = 0;
     // FK FROM ITEMS

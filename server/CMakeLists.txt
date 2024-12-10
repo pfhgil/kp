@@ -1,6 +1,13 @@
 project(kp_server)
 
-set(SERVER_SOURCES main.cpp Utils.h Controllers/StaffController.h Controllers/StoragesController.h Controllers/ItemTypeInfoController.h Controllers/Common.h)
+set(SERVER_SOURCES
+        main.cpp
+        Utils.h
+        Controllers/StaffController.h
+        Controllers/StoragesController.h
+        Controllers/ItemTypeInfoController.h
+        Controllers/Common.h
+        Controllers/OffsController.h)
 
 set(SERVER_EXEC_NAME ${PROJECT_NAME})
 

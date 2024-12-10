@@ -72,6 +72,18 @@ consteval std::string_view getUnMangledTypeName() noexcept
     return str;
 }
 
+template<auto V>
+consteval std::string_view getUnMangledValueName() noexcept
+{
+    std::string_view str = GENERATOR_PRETTY_FUNCTION;
+
+    size_t pos0 = str.find(__FUNCTION_NAME__) + sizeof(__FUNCTION_NAME__);
+    size_t pos1 = str.rfind('>');
+    str = str.substr(pos0, pos1 - pos0);
+
+    return str;
+}
+
 template <class T>
 struct MemberPtr final
 {

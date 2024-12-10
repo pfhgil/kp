@@ -9,11 +9,13 @@
 #include "TableType.h"
 #include "Models/Storage.h"
 #include "Models/Worker.h"
+#include "Models/Offs.h"
 #include "Update/UpdateWorkerWindow.h"
 #include "Update/UpdateStorageWindow.h"
 #include "Update/UpdateItemTypeInfoWindow.h"
 #include "SGE/Popup.h"
 #include "Models/ItemTypeInfo.h"
+#include "Reflection/Reflection.h"
 
 struct TablesView : public SGCore::ImGuiWrap::IView
 {
@@ -26,6 +28,7 @@ struct TablesView : public SGCore::ImGuiWrap::IView
     std::vector<Worker> m_workers;
     std::vector<Storage> m_storages;
     std::vector<ItemTypeInfo> m_itemsTypeInfo;
+    std::vector<Offs> m_offs;
 
     void reloadTable(TableType tableType) noexcept;
     void reloadAllTables() noexcept;
@@ -61,6 +64,102 @@ private:
     SGCore::Ref<UpdateItemTypeInfoWindow> m_updateItemTypeInfoWindow;
 
     SGE::Popup m_rowPopup;
+
+    template<typename T>
+    requires(requires { T::id; } && std::is_integral_v<decltype(T::id)> &&
+    std::remove_reference_t<decltype(makeMetaInfo<const T>(T { }).template get<0>())>::unmangled_name == "id")
+    void drawTable(std::vector<T>& records) noexcept
+    {
+        if(records.empty())
+        {
+            m_error = "Table '" + T::s_parentTableName + "' is empty!";
+            return;
+        }
+
+        auto exampleMeta = makeMetaInfo(records[0]);
+
+        if(ImGui::BeginTable(T::s_parentTableName.c_str(), exampleMeta.members_count,
+                             ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg | ImGuiTableFlags_Sortable))
+        {
+            exampleMeta.iterateThroughMembers([](auto memberInfo) {
+                ImGui::TableSetupColumn(std::string { memberInfo.unmangled_name }.c_str());
+            });
+
+            ImGui::TableHeadersRow();
+
+            for(auto& record : records)
+            {
+                ImGui::TableNextRow();
+                // =====================================
+
+                auto recordMetaInfo = makeMetaInfo(record);
+
+                recordMetaInfo.iterateThroughMembers([&recordMetaInfo, this](auto memberInfo) {
+                    using member_t = typename decltype(memberInfo)::member_t;
+
+                    ImGui::TableNextColumn();
+
+                    if constexpr(memberInfo.unmangled_name == "id")
+                    {
+                        ImGui::PushID((T::s_parentTableName + std::to_string(memberInfo.value)).c_str());
+
+                        auto& currentSelectedRowsMap = m_selectedRows[static_cast<int>(m_tableType)];
+                        auto& isSelected = currentSelectedRowsMap[memberInfo.value];
+                        auto tmpIsSelected = isSelected;
+
+                        if(ImGui::Selectable(
+                                "", &tmpIsSelected, ImGuiSelectableFlags_SpanAllColumns))
+                        {
+                            if (ImGui::IsKeyDown(ImGuiKey_ModShift))
+                            {
+                                isSelected = true;
+                            }
+                            else if (ImGui::IsKeyDown(ImGuiKey_ModCtrl))
+                            {
+                                isSelected = !isSelected;
+                            }
+                            else
+                            {
+                                // оставляем только текущую строку
+                                currentSelectedRowsMap = { };
+                                currentSelectedRowsMap[memberInfo.value] = true;
+                            }
+                        }
+
+                        if(ImGui::IsItemClicked(ImGuiMouseButton_Right))
+                        {
+                            m_openPopup = true;
+                            m_rightClickedRowID = memberInfo.value;
+                        }
+
+                        ImGui::SameLine();
+                        ImGui::Text(std::to_string(memberInfo.value).c_str());
+                    }
+                    else
+                    {
+                        if constexpr(std::is_integral_v<member_t>)
+                        {
+                            ImGui::Text(std::to_string(memberInfo.value).c_str());
+                        }
+                        else if constexpr(std::is_same_v<std::basic_string<char>, member_t>)
+                        {
+                            ImGui::Text(memberInfo.value.c_str());
+                        }
+                        else if constexpr(std::is_enum_v<member_t>)
+                        {
+                            ImGui::Text(enum_reflect::generateRuntimeNamesMarkup<member_t>()[std::to_underlying(memberInfo.value)].c_str());
+                        }
+                    }
+                });
+
+                ImGui::PopID();
+
+                sortTable(records);
+            }
+
+            ImGui::EndTable();
+        }
+    }
 
     void drawStaffTable() noexcept;
     void drawStoragesTable() noexcept;
@@ -101,6 +200,7 @@ private:
     void initializeSortingSpecsForWorkers() const noexcept;
     void initializeSortingSpecsForStorages() const noexcept;
     void initializeSortingSpecsForItemsTypeInfo() const noexcept;
+    void initializeSortingSpecsForOffs() const noexcept;
 
     template<typename T>
     struct SortingSpecs

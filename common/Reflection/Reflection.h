@@ -9,6 +9,7 @@
 #include <vector>
 #include <optional>
 #include <cassert>
+#include <array>
 
 /*
 MIT License
@@ -565,6 +566,153 @@ private:
             func(std::get<CurIdx>(members));
             iterateThroughMembersImpl<Func, CurIdx + 1>(func);
         }
+    }
+};
+
+struct enum_reflect
+{
+    template<size_t Index, auto EnumV>
+    struct EnumValueInfo
+    {
+        using enum_t = decltype(EnumV);
+
+        static constexpr enum_t value = EnumV;
+        static constexpr size_t index = Index;
+        static constexpr std::string_view unmangled_name = getUnMangledValueName<EnumV>();
+        static constexpr std::string_view mangled_name = getMangledTypeName<EnumV>();
+    };
+
+    template<typename EnumT>
+    static consteval auto getEnumMembers()
+    {
+        return getEnumMembersImpl<EnumT>({});
+    }
+
+    template<typename EnumT>
+    static consteval auto getEnumMembersCount()
+    {
+        return getEnumMembers<EnumT>().size();
+    }
+
+    template<typename EnumT>
+    static consteval auto getEnumMembersInfo()
+    {
+        constexpr auto members = getEnumMembers<EnumT>();
+
+        if constexpr(members.size() == 0)
+        {
+            return std::tuple<>();
+        }
+        else
+        {
+            auto tup = std::make_tuple(EnumValueInfo<members.size() - 1, members[members.size() - 1]>());
+
+            return getEnumMembersInfoImpl<members.size() - 2, members>(tup);
+        }
+    }
+
+    template<typename EnumT, typename Func>
+    static constexpr void iterateThroughEnumMembers(const Func& func)
+    {
+        constexpr auto membersInfo = getEnumMembersInfo<EnumT>();
+        if constexpr(std::tuple_size_v<decltype(membersInfo)> > 0)
+        {
+            iterateThroughEnumMembersImpl<0>(func, membersInfo);
+        }
+    }
+
+    template<typename EnumT>
+    static std::array<std::string, getEnumMembersCount<EnumT>()> generateRuntimeNamesMarkup() noexcept
+    {
+        static auto markup = []() {
+            std::array<std::string, getEnumMembersCount<EnumT>()> markup;
+
+            size_t idx = 0;
+            iterateThroughEnumMembers<EnumT>([&markup, &idx](auto memberInfo) {
+                markup[idx] = memberInfo.unmangled_name;
+                ++idx;
+            });
+
+            return markup;
+        }();
+
+        return markup;
+    }
+
+private:
+    template<size_t MemberIdx,  typename Func>
+    static constexpr void iterateThroughEnumMembersImpl(const Func& func, auto membersInfo)
+    {
+        if constexpr(MemberIdx == std::tuple_size_v<decltype(membersInfo)>)
+        {
+
+        }
+        else
+        {
+            func(std::get<MemberIdx>(membersInfo));
+            iterateThroughEnumMembersImpl<MemberIdx + 1>(func, membersInfo);
+        }
+    }
+
+    template<size_t MemberIdx, auto MembersArr>
+    static consteval auto getEnumMembersInfoImpl(auto membersTuple)
+    {
+        if constexpr(MemberIdx == -1)
+        {
+            return membersTuple;
+        }
+        else
+        {
+            auto newTuple = std::tuple_cat(std::make_tuple(EnumValueInfo<MemberIdx, MembersArr[MemberIdx]>()), membersTuple);
+            return getEnumMembersInfoImpl<MemberIdx - 1, MembersArr>(newTuple);
+        }
+    }
+
+    template<typename EnumT, std::int64_t ValidCount = 0, std::underlying_type_t<EnumT> EnumIdx = -127>
+    static consteval auto getEnumMembersImpl(const std::array<EnumT, ValidCount>& lastArr)
+    {
+        using underlying_t = std::underlying_type_t<EnumT>;
+
+        if constexpr (EnumIdx == 127)
+        {
+            return lastArr;
+        }
+        else
+        {
+            if constexpr (getUnMangledValueName<(EnumT) EnumIdx>().contains("("))
+            {
+                return getEnumMembersImpl<EnumT, ValidCount, EnumIdx + 1>(lastArr);
+            }
+            else
+            {
+                std::array<EnumT, ValidCount + 1> newArr = concatArrays(lastArr, std::array<EnumT, 1> {});
+
+                newArr[ValidCount] = (EnumT) EnumIdx;
+
+                return getEnumMembersImpl<EnumT, ValidCount + 1, EnumIdx + 1>(newArr);
+            }
+        }
+    }
+
+    template <typename T, std::size_t N1, std::size_t N2>
+    static constexpr std::array<T, N1 + N2> concatArrays(std::array<T, N1> lhs, std::array<T, N2> rhs)
+    {
+        std::array<T, N1 + N2> result { };
+        std::size_t index = 0;
+
+        for (auto& el : lhs)
+        {
+            result[index] = std::move(el);
+            ++index;
+        }
+
+        for (auto& el : rhs)
+        {
+            result[index] = std::move(el);
+            ++index;
+        }
+
+        return result;
     }
 };
 

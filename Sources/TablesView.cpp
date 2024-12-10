@@ -2,9 +2,7 @@
 // Created by stuka on 01.12.2024.
 //
 
-#include "Models/Worker.h"
 #include "TablesView.h"
-#include "Models/Storage.h"
 #include "Client.h"
 #include <coroutine>
 
@@ -118,19 +116,19 @@ void TablesView::renderBody() noexcept
     {
         case TableType::STAFF:
         {
-            drawStaffTable();
+            drawTable(m_workers);
             break;
         }
         case TableType::OFFS:break;
         case TableType::STORAGES:
         {
-            drawStoragesTable();
+            drawTable(m_storages);
             break;
         }
         case TableType::SHIPMENTS:break;
         case TableType::ITEM_TYPE_INFO:
         {
-            drawItemsTypeInfoTable();
+            drawTable(m_itemsTypeInfo);
             break;
         }
         case TableType::ITEMS:break;
@@ -152,7 +150,11 @@ void TablesView::reloadTable(TableType tableType) noexcept
             m_workers = Client::getAllRecords<Worker>().get();
             break;
         }
-        case TableType::OFFS:break;
+        case TableType::OFFS:
+        {
+            m_offs = Client::getAllRecords<Offs>().get();
+            break;
+        }
         case TableType::STORAGES:
         {
             m_storages = Client::getAllRecords<Storage>().get();
@@ -232,240 +234,6 @@ void TablesView::deleteSelectedRows() noexcept
     tableSelectedRowsMapping.clear();
 }
 
-void TablesView::drawStaffTable() noexcept
-{
-    if(m_workers.empty())
-    {
-        m_error = "Table 'staff' is empty!";
-        return;
-    }
-
-    if(ImGui::BeginTable("Staff", 8, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg | ImGuiTableFlags_Sortable))
-    {
-        ImGui::TableSetupColumn("ID");
-        ImGui::TableSetupColumn("Name");
-        ImGui::TableSetupColumn("Surname");
-        ImGui::TableSetupColumn("Patronymic");
-        ImGui::TableSetupColumn("Role");
-        ImGui::TableSetupColumn("Storage ID");
-        ImGui::TableSetupColumn("Login");
-        ImGui::TableSetupColumn("Password");
-        ImGui::TableHeadersRow();
-
-        for(auto& record : m_workers)
-        {
-            ImGui::TableNextRow();
-            // =====================================
-
-            ImGui::TableNextColumn();
-
-            ImGui::PushID(record.id);
-
-            auto& currentSelectedRowsMap = m_selectedRows[static_cast<int>(m_tableType)];
-            auto& isSelected = currentSelectedRowsMap[record.id];
-            auto tmpIsSelected = isSelected;
-
-            if(ImGui::Selectable(
-                    "", &tmpIsSelected, ImGuiSelectableFlags_SpanAllColumns)) {
-                if (ImGui::IsKeyDown(ImGuiKey_ModShift))
-                {
-                    isSelected = true;
-                }
-                else if (ImGui::IsKeyDown(ImGuiKey_ModCtrl))
-                {
-                    isSelected = !isSelected;
-                }
-                else
-                {
-                    // оставляем только текущую строку
-                    currentSelectedRowsMap = { };
-                    currentSelectedRowsMap[record.id] = true;
-                }
-            }
-
-            if(ImGui::IsItemClicked(ImGuiMouseButton_Right))
-            {
-                m_openPopup = true;
-                m_rightClickedRowID = record.id;
-            }
-
-            ImGui::SameLine();
-            ImGui::Text(std::to_string(record.id).c_str());
-
-            ImGui::TableNextColumn();
-            ImGui::Text(record.name.c_str());
-
-            ImGui::TableNextColumn();
-            ImGui::Text(record.surname.c_str());
-
-            ImGui::TableNextColumn();
-            ImGui::Text(record.patronymic.c_str());
-
-            ImGui::TableNextColumn();
-            ImGui::Text(roleToString(record.role).c_str());
-
-            ImGui::TableNextColumn();
-            ImGui::Text(std::to_string(record.storage_id).c_str());
-
-            ImGui::TableNextColumn();
-            ImGui::Text(record.login.c_str());
-
-            ImGui::TableNextColumn();
-            ImGui::Text(record.password.c_str());
-
-            ImGui::PopID();
-
-            sortTable(m_workers);
-        }
-
-        ImGui::EndTable();
-    }
-}
-
-void TablesView::drawStoragesTable() noexcept
-{
-    if(m_storages.empty())
-    {
-        m_error = "Table 'storages' is empty!";
-        return;
-    }
-
-    if(ImGui::BeginTable("Storages", 2, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg | ImGuiTableFlags_Sortable))
-    {
-        ImGui::TableSetupColumn("ID");
-        ImGui::TableSetupColumn("Address");
-        ImGui::TableHeadersRow();
-
-        for(auto& record : m_storages)
-        {
-            ImGui::TableNextRow();
-            ImGui::TableNextColumn();
-
-            ImGui::PushID(("StoragesRow" + std::to_string(record.id)).c_str());
-
-            auto& currentSelectedRowsMap = m_selectedRows[static_cast<int>(m_tableType)];
-            auto& isSelected = currentSelectedRowsMap[record.id];
-            auto tmpIsSelected = isSelected;
-
-            if(ImGui::Selectable(
-                    "", &tmpIsSelected, ImGuiSelectableFlags_SpanAllColumns)) {
-                if (ImGui::IsKeyDown(ImGuiKey_ModShift))
-                {
-                    isSelected = true;
-                }
-                else if (ImGui::IsKeyDown(ImGuiKey_ModCtrl))
-                {
-                    isSelected = !isSelected;
-                }
-                else
-                {
-                    // оставляем только текущую строку
-                    currentSelectedRowsMap = { };
-                    currentSelectedRowsMap[record.id] = true;
-                }
-            }
-
-            if(ImGui::IsItemClicked(ImGuiMouseButton_Right))
-            {
-                m_openPopup = true;
-                m_rightClickedRowID = record.id;
-            }
-
-            ImGui::SameLine();
-            ImGui::Text(std::to_string(record.id).c_str());
-
-            ImGui::TableNextColumn();
-            ImGui::Text(record.address.c_str());
-
-            ImGui::PopID();
-
-            sortTable(m_storages);
-        }
-
-        ImGui::EndTable();
-    }
-}
-
-void TablesView::drawItemsTypeInfoTable() noexcept
-{
-    if(m_storages.empty())
-    {
-        m_error = "Table 'item_type_info' is empty!";
-        return;
-    }
-
-    if(ImGui::BeginTable("ItemsTypeInfo", 6, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg | ImGuiTableFlags_Sortable))
-    {
-        ImGui::TableSetupColumn("ID");
-        ImGui::TableSetupColumn("Name");
-        ImGui::TableSetupColumn("Count");
-        ImGui::TableSetupColumn("Date Of Receipt");
-        ImGui::TableSetupColumn("Expiration Date");
-        ImGui::TableSetupColumn("Production Date");
-        ImGui::TableHeadersRow();
-
-        for(auto& record : m_itemsTypeInfo)
-        {
-            ImGui::TableNextRow();
-            ImGui::TableNextColumn();
-
-            ImGui::PushID(("ItemTypeInfoRow" + std::to_string(record.id)).c_str());
-
-            auto& currentSelectedRowsMap = m_selectedRows[static_cast<int>(m_tableType)];
-            auto& isSelected = currentSelectedRowsMap[record.id];
-            auto tmpIsSelected = isSelected;
-
-            if(ImGui::Selectable(
-                    "", &tmpIsSelected, ImGuiSelectableFlags_SpanAllColumns)) {
-                if (ImGui::IsKeyDown(ImGuiKey_ModShift))
-                {
-                    isSelected = true;
-                }
-                else if (ImGui::IsKeyDown(ImGuiKey_ModCtrl))
-                {
-                    isSelected = !isSelected;
-                }
-                else
-                {
-                    // оставляем только текущую строку
-                    currentSelectedRowsMap = { };
-                    currentSelectedRowsMap[record.id] = true;
-                }
-            }
-
-            if(ImGui::IsItemClicked(ImGuiMouseButton_Right))
-            {
-                m_openPopup = true;
-                m_rightClickedRowID = record.id;
-            }
-
-            ImGui::SameLine();
-            ImGui::Text(std::to_string(record.id).c_str());
-
-            ImGui::TableNextColumn();
-            ImGui::Text(record.name.c_str());
-
-            ImGui::TableNextColumn();
-            ImGui::Text(std::to_string(record.count).c_str());
-
-            ImGui::TableNextColumn();
-            ImGui::Text(record.date_of_receipt.c_str());
-
-            ImGui::TableNextColumn();
-            ImGui::Text(record.expiration_date.c_str());
-
-            ImGui::TableNextColumn();
-            ImGui::Text(record.production_date.c_str());
-
-            ImGui::PopID();
-
-            sortTable(m_itemsTypeInfo);
-        }
-
-        ImGui::EndTable();
-    }
-}
-
 void TablesView::initializeSortingSpecsForWorkers() const noexcept
 {
     SortingSpecs<Worker>::s_sortingFunctions[0] = [](const auto& t0, const auto& t1) noexcept {
@@ -539,6 +307,29 @@ void TablesView::initializeSortingSpecsForItemsTypeInfo() const noexcept
     SortingSpecs<ItemTypeInfo>::s_sortingFunctions[5] = [](const auto& t0, const auto& t1) noexcept {
         return std::pair { SGCore::Utils::getStringAsTime(t0.production_date).time_since_epoch().count(),
                            SGCore::Utils::getStringAsTime(t1.production_date).time_since_epoch().count() };
+    };
+}
+
+void TablesView::initializeSortingSpecsForOffs() const noexcept
+{
+    SortingSpecs<Offs>::s_sortingFunctions[0] = [](const auto& t0, const auto& t1) noexcept {
+        return std::pair { t0.id, t1.id };
+    };
+
+    SortingSpecs<Offs>::s_sortingFunctions[1] = [](const auto& t0, const auto& t1) noexcept {
+        return std::pair { t0.item_id, t1.item_id };
+    };
+
+    SortingSpecs<Offs>::s_sortingFunctions[2] = [](const auto& t0, const auto& t1) noexcept {
+        return std::pair { t0.worker_id, t1.worker_id };
+    };
+
+    SortingSpecs<Offs>::s_sortingFunctions[3] = [](const auto& t0, const auto& t1) noexcept {
+        return std::pair { t0.reason.size(), t1.reason.size() };
+    };
+
+    SortingSpecs<Offs>::s_sortingFunctions[4] = [](const auto& t0, const auto& t1) noexcept {
+        return std::pair { t0.storage_id, t1.storage_id };
     };
 }
 

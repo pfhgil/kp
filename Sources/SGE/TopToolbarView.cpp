@@ -111,6 +111,10 @@ SGE::TopToolbarView::TopToolbarView()
         {
             Main::getMainView()->getTablesView()->m_tableType = TableType::ITEM_TYPE_INFO;
         }
+        else if(element->m_ID == "Tables/Offs")
+        {
+            Main::getMainView()->getTablesView()->m_tableType = TableType::OFFS;
+        }
     };
 
     m_editButtonPopup.onElementClicked += [](const SGCore::Ref<PopupElement>& element) {

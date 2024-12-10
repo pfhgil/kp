@@ -35,7 +35,14 @@ TablesView::TablesView() noexcept
                     break;
                 }
                 case TableType::OFFS:
+                {
+                    auto editableOffTypeInfo = Client::getRecordByID<Offs>(m_rightClickedRowID).get();
+                    m_updateOffWindow->setTableUpdateType(TableUpdateType::UPDATE);
+                    m_updateOffWindow->m_record = editableOffTypeInfo;
+                    m_updateOffWindow->setActive(true);
+
                     break;
+                }
                 case TableType::STORAGES:
                 {
                     auto editableStorage = Client::getRecordByID<Storage>(m_rightClickedRowID).get();
@@ -81,6 +88,11 @@ TablesView::TablesView() noexcept
 
     addChild(m_updateItemTypeInfoWindow);
 
+    m_updateOffWindow = SGCore::MakeRef<UpdateOffWindow>();
+    m_updateOffWindow->setActive(false);
+
+    addChild(m_updateOffWindow);
+
     m_selectedRows.resize(static_cast<int>(TableType::COUNT));
 
     reloadAllTables();
@@ -88,6 +100,7 @@ TablesView::TablesView() noexcept
     initializeSortingSpecsForWorkers();
     initializeSortingSpecsForStorages();
     initializeSortingSpecsForItemsTypeInfo();
+    initializeSortingSpecsForOffs();
 }
 
 void TablesView::renderBody() noexcept
@@ -119,7 +132,11 @@ void TablesView::renderBody() noexcept
             drawTable(m_workers);
             break;
         }
-        case TableType::OFFS:break;
+        case TableType::OFFS:
+        {
+            drawTable(m_offs);
+            break;
+        }
         case TableType::STORAGES:
         {
             drawTable(m_storages);
@@ -200,7 +217,15 @@ void TablesView::deleteSelectedRows() noexcept
             break;
         }
         case TableType::OFFS:
+        {
+            for (const auto& row: tableSelectedRowsMapping)
+            {
+                if (row.second) Client::deleteRecord<Offs>(row.first);
+            }
+
+            m_offs = Client::getAllRecords<Offs>().get();
             break;
+        }
         case TableType::STORAGES:
         {
             for(const auto& row : tableSelectedRowsMapping)

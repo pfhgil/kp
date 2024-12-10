@@ -131,7 +131,15 @@ SGE::TopToolbarView::TopToolbarView()
 
                     break;
                 }
-                case TableType::OFFS:break;
+                case TableType::OFFS:
+                {
+                    auto wnd = Main::getMainView()->getTablesView()->getUpdateOffWindow();
+
+                    wnd->setTableUpdateType(TableUpdateType::ADD);
+                    wnd->setActive(true);
+
+                    break;
+                }
                 case TableType::STORAGES:
                 {
                     auto wnd = Main::getMainView()->getTablesView()->getUpdateStorageWindow();
@@ -148,15 +156,6 @@ SGE::TopToolbarView::TopToolbarView()
 
                     wnd->setTableUpdateType(TableUpdateType::ADD);
                     wnd->setActive(true);
-
-                    /*ItemTypeInfo itemTypeInfo {
-                        .m_name = "Металл",
-                        .m_dateOfReceipt = "2023-10-24",
-                        .m_expirationDate = "2101-11-10",
-                        .m_productionDate = "2001-11-10"
-                    };
-
-                    Client::addRecord(itemTypeInfo);*/
 
                     break;
                 }

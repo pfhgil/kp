@@ -13,6 +13,7 @@
 #include "Update/UpdateWorkerWindow.h"
 #include "Update/UpdateStorageWindow.h"
 #include "Update/UpdateItemTypeInfoWindow.h"
+#include "Update/UpdateOffWindow.h"
 #include "SGE/Popup.h"
 #include "Models/ItemTypeInfo.h"
 #include "Reflection/Reflection.h"
@@ -50,6 +51,11 @@ struct TablesView : public SGCore::ImGuiWrap::IView
         return m_updateItemTypeInfoWindow;
     }
 
+    [[nodiscard]] auto getUpdateOffWindow() const noexcept
+    {
+        return m_updateOffWindow;
+    }
+
 private:
     std::string m_error;
 
@@ -62,6 +68,7 @@ private:
     SGCore::Ref<UpdateWorkerWindow> m_updateWorkerWindow;
     SGCore::Ref<UpdateStorageWindow> m_updateStorageWindow;
     SGCore::Ref<UpdateItemTypeInfoWindow> m_updateItemTypeInfoWindow;
+    SGCore::Ref<UpdateOffWindow> m_updateOffWindow;
 
     SGE::Popup m_rowPopup;
 
@@ -160,10 +167,6 @@ private:
             ImGui::EndTable();
         }
     }
-
-    void drawStaffTable() noexcept;
-    void drawStoragesTable() noexcept;
-    void drawItemsTypeInfoTable() noexcept;
 
     template<typename T>
     void sortTable(std::vector<T>& collection)

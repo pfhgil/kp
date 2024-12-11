@@ -15,7 +15,7 @@ enum class TableType
     ITEMS,
     ORDERS,
     PROVIDERS,
-    COUNT = PROVIDERS
+    COUNT = PROVIDERS + 1
 };
 
 #endif //PROJ3_TABLETYPE_H

@@ -68,7 +68,14 @@ TablesView::TablesView() noexcept
                 case TableType::ORDERS:
                     break;
                 case TableType::PROVIDERS:
+                {
+                    auto editableProvider = Client::getRecordByID<Provider>(m_rightClickedRowID).get();
+                    m_updateProviderWindow->setTableUpdateType(TableUpdateType::UPDATE);
+                    m_updateProviderWindow->m_record = editableProvider;
+                    m_updateProviderWindow->setActive(true);
+
                     break;
+                }
             }
         }
     };
@@ -93,6 +100,11 @@ TablesView::TablesView() noexcept
 
     addChild(m_updateOffWindow);
 
+    m_updateProviderWindow = SGCore::MakeRef<UpdateProviderWindow>();
+    m_updateProviderWindow->setActive(false);
+
+    addChild(m_updateProviderWindow);
+
     m_selectedRows.resize(static_cast<int>(TableType::COUNT));
 
     reloadAllTables();
@@ -101,6 +113,7 @@ TablesView::TablesView() noexcept
     initializeSortingSpecsForStorages();
     initializeSortingSpecsForItemsTypeInfo();
     initializeSortingSpecsForOffs();
+    initializeSortingSpecsForProviders();
 }
 
 void TablesView::renderBody() noexcept
@@ -150,7 +163,11 @@ void TablesView::renderBody() noexcept
         }
         case TableType::ITEMS:break;
         case TableType::ORDERS:break;
-        case TableType::PROVIDERS:break;
+        case TableType::PROVIDERS:
+        {
+            drawTable(m_providers);
+            break;
+        }
     }
 
     ImGui::EndChildFrame();
@@ -185,7 +202,11 @@ void TablesView::reloadTable(TableType tableType) noexcept
         }
         case TableType::ITEMS:break;
         case TableType::ORDERS:break;
-        case TableType::PROVIDERS:break;
+        case TableType::PROVIDERS:
+        {
+            m_providers = Client::getAllRecords<Provider>().get();
+            break;
+        }
     }
 }
 
@@ -253,7 +274,15 @@ void TablesView::deleteSelectedRows() noexcept
         case TableType::ORDERS:
             break;
         case TableType::PROVIDERS:
+        {
+            for(const auto& row : tableSelectedRowsMapping)
+            {
+                if(row.second) Client::deleteRecord<Provider>(row.first);
+            }
+
+            m_providers = Client::getAllRecords<Provider>().get();
             break;
+        }
     }
 
     tableSelectedRowsMapping.clear();
@@ -355,6 +384,17 @@ void TablesView::initializeSortingSpecsForOffs() const noexcept
 
     SortingSpecs<Offs>::s_sortingFunctions[4] = [](const auto& t0, const auto& t1) noexcept {
         return std::pair { t0.storage_id, t1.storage_id };
+    };
+}
+
+void TablesView::initializeSortingSpecsForProviders() const noexcept
+{
+    SortingSpecs<Provider>::s_sortingFunctions[0] = [](const auto& t0, const auto& t1) noexcept {
+        return std::pair { t0.id, t1.id };
+    };
+
+    SortingSpecs<Provider>::s_sortingFunctions[1] = [](const auto& t0, const auto& t1) noexcept {
+        return std::pair { t0.name.size(), t1.name.size() };
     };
 }
 

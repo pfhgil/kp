@@ -115,6 +115,10 @@ SGE::TopToolbarView::TopToolbarView()
         {
             Main::getMainView()->getTablesView()->m_tableType = TableType::OFFS;
         }
+        else if(element->m_ID == "Tables/Providers")
+        {
+            Main::getMainView()->getTablesView()->m_tableType = TableType::PROVIDERS;
+        }
     };
 
     m_editButtonPopup.onElementClicked += [](const SGCore::Ref<PopupElement>& element) {
@@ -161,7 +165,15 @@ SGE::TopToolbarView::TopToolbarView()
                 }
                 case TableType::ITEMS:break;
                 case TableType::ORDERS:break;
-                case TableType::PROVIDERS:break;
+                case TableType::PROVIDERS:
+                {
+                    auto wnd = Main::getMainView()->getTablesView()->getUpdateProviderWindow();
+
+                    wnd->setTableUpdateType(TableUpdateType::ADD);
+                    wnd->setActive(true);
+
+                    break;
+                }
             }
         }
         else if(element->m_ID == "Edit/DeleteRow")

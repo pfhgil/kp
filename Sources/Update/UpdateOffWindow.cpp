@@ -11,7 +11,7 @@
 
 void UpdateOffWindow::renderBody() noexcept
 {
-    if(ImGui::BeginTable((m_name.getName() + "_Table").c_str(), 3, ImGuiTableFlags_SizingStretchProp))
+    if(ImGui::BeginTable((m_name.getName() + "_Table").c_str(), 2, ImGuiTableFlags_SizingStretchProp))
     {
         ImGui::TableNextRow();
         {

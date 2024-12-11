@@ -9,6 +9,7 @@
 #include "Controllers/StoragesController.h"
 #include "Controllers/ItemTypeInfoController.h"
 #include "Controllers/OffsController.h"
+#include "Controllers/ProvidersController.h"
 
 #include "Utils.h"
 #include "SerdeSpecs.h"
@@ -26,6 +27,7 @@ int main()
             .registerController(std::make_shared<api::storages>())
             .registerController(std::make_shared<api::item_type_info>())
             .registerController(std::make_shared<api::offs>())
+            .registerController(std::make_shared<api::providers>())
             .setLogLevel(trantor::Logger::LogLevel::kTrace)
             /*.registerHandler("/add_worker", &addWorkerHandler, { drogon::Post })
             .registerHandler("/add_storage", &addStorageHandler, { drogon::Post })

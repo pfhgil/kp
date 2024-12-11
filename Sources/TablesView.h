@@ -10,10 +10,12 @@
 #include "Models/Storage.h"
 #include "Models/Worker.h"
 #include "Models/Offs.h"
+#include "Models/Provider.h"
 #include "Update/UpdateWorkerWindow.h"
 #include "Update/UpdateStorageWindow.h"
 #include "Update/UpdateItemTypeInfoWindow.h"
 #include "Update/UpdateOffWindow.h"
+#include "Update/UpdateProviderWindow.h"
 #include "SGE/Popup.h"
 #include "Models/ItemTypeInfo.h"
 #include "Reflection/Reflection.h"
@@ -30,6 +32,7 @@ struct TablesView : public SGCore::ImGuiWrap::IView
     std::vector<Storage> m_storages;
     std::vector<ItemTypeInfo> m_itemsTypeInfo;
     std::vector<Offs> m_offs;
+    std::vector<Provider> m_providers;
 
     void reloadTable(TableType tableType) noexcept;
     void reloadAllTables() noexcept;
@@ -56,6 +59,11 @@ struct TablesView : public SGCore::ImGuiWrap::IView
         return m_updateOffWindow;
     }
 
+    [[nodiscard]] auto getUpdateProviderWindow() const noexcept
+    {
+        return m_updateProviderWindow;
+    }
+
 private:
     std::string m_error;
 
@@ -69,6 +77,7 @@ private:
     SGCore::Ref<UpdateStorageWindow> m_updateStorageWindow;
     SGCore::Ref<UpdateItemTypeInfoWindow> m_updateItemTypeInfoWindow;
     SGCore::Ref<UpdateOffWindow> m_updateOffWindow;
+    SGCore::Ref<UpdateProviderWindow> m_updateProviderWindow;
 
     SGE::Popup m_rowPopup;
 
@@ -204,6 +213,7 @@ private:
     void initializeSortingSpecsForStorages() const noexcept;
     void initializeSortingSpecsForItemsTypeInfo() const noexcept;
     void initializeSortingSpecsForOffs() const noexcept;
+    void initializeSortingSpecsForProviders() const noexcept;
 
     template<typename T>
     struct SortingSpecs

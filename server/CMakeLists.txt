@@ -7,7 +7,9 @@ set(SERVER_SOURCES
         Controllers/StoragesController.h
         Controllers/ItemTypeInfoController.h
         Controllers/Common.h
-        Controllers/OffsController.h)
+        Controllers/OffsController.h
+        Controllers/ProvidersController.h
+        )
 
 set(SERVER_EXEC_NAME ${PROJECT_NAME})
 

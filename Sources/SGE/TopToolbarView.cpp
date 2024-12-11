@@ -119,6 +119,14 @@ SGE::TopToolbarView::TopToolbarView()
         {
             Main::getMainView()->getTablesView()->m_tableType = TableType::PROVIDERS;
         }
+        else if(element->m_ID == "Tables/Items")
+        {
+            Main::getMainView()->getTablesView()->m_tableType = TableType::ITEMS;
+        }
+        else if(element->m_ID == "Tables/Orders")
+        {
+            Main::getMainView()->getTablesView()->m_tableType = TableType::ORDERS;
+        }
     };
 
     m_editButtonPopup.onElementClicked += [](const SGCore::Ref<PopupElement>& element) {
@@ -163,8 +171,24 @@ SGE::TopToolbarView::TopToolbarView()
 
                     break;
                 }
-                case TableType::ITEMS:break;
-                case TableType::ORDERS:break;
+                case TableType::ITEMS:
+                {
+                    auto wnd = Main::getMainView()->getTablesView()->getUpdateItemWindow();
+
+                    wnd->setTableUpdateType(TableUpdateType::ADD);
+                    wnd->setActive(true);
+
+                    break;
+                }
+                case TableType::ORDERS:
+                {
+                    auto wnd = Main::getMainView()->getTablesView()->getUpdateOrderWindow();
+
+                    wnd->setTableUpdateType(TableUpdateType::ADD);
+                    wnd->setActive(true);
+
+                    break;
+                }
                 case TableType::PROVIDERS:
                 {
                     auto wnd = Main::getMainView()->getTablesView()->getUpdateProviderWindow();

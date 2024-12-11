@@ -64,9 +64,23 @@ TablesView::TablesView() noexcept
                     break;
                 }
                 case TableType::ITEMS:
+                {
+                    auto editableItem = Client::getRecordByID<Item>(m_rightClickedRowID).get();
+                    m_updateItemWindow->setTableUpdateType(TableUpdateType::UPDATE);
+                    m_updateItemWindow->m_record = editableItem;
+                    m_updateItemWindow->setActive(true);
+
                     break;
+                }
                 case TableType::ORDERS:
+                {
+                    auto editableOrder = Client::getRecordByID<Order>(m_rightClickedRowID).get();
+                    m_updateOrderWindow->setTableUpdateType(TableUpdateType::UPDATE);
+                    m_updateOrderWindow->m_record = editableOrder;
+                    m_updateOrderWindow->setActive(true);
+
                     break;
+                }
                 case TableType::PROVIDERS:
                 {
                     auto editableProvider = Client::getRecordByID<Provider>(m_rightClickedRowID).get();
@@ -105,6 +119,16 @@ TablesView::TablesView() noexcept
 
     addChild(m_updateProviderWindow);
 
+    m_updateItemWindow = SGCore::MakeRef<UpdateItemWindow>();
+    m_updateItemWindow->setActive(false);
+
+    addChild(m_updateItemWindow);
+
+    m_updateOrderWindow = SGCore::MakeRef<UpdateOrderWindow>();
+    m_updateOrderWindow->setActive(false);
+
+    addChild(m_updateOrderWindow);
+
     m_selectedRows.resize(static_cast<int>(TableType::COUNT));
 
     reloadAllTables();
@@ -114,6 +138,8 @@ TablesView::TablesView() noexcept
     initializeSortingSpecsForItemsTypeInfo();
     initializeSortingSpecsForOffs();
     initializeSortingSpecsForProviders();
+    initializeSortingSpecsForItems();
+    initializeSortingSpecsForOrders();
 }
 
 void TablesView::renderBody() noexcept
@@ -129,8 +155,6 @@ void TablesView::renderBody() noexcept
     }
 
     m_rowPopup.draw();
-
-    m_error = "";
 
     ImGui::Begin("Table");
 
@@ -161,8 +185,16 @@ void TablesView::renderBody() noexcept
             drawTable(m_itemsTypeInfo);
             break;
         }
-        case TableType::ITEMS:break;
-        case TableType::ORDERS:break;
+        case TableType::ITEMS:
+        {
+            drawTable(m_items);
+            break;
+        }
+        case TableType::ORDERS:
+        {
+            drawTable(m_orders);
+            break;
+        }
         case TableType::PROVIDERS:
         {
             drawTable(m_providers);
@@ -200,8 +232,16 @@ void TablesView::reloadTable(TableType tableType) noexcept
             m_itemsTypeInfo = Client::getAllRecords<ItemTypeInfo>().get();
             break;
         }
-        case TableType::ITEMS:break;
-        case TableType::ORDERS:break;
+        case TableType::ITEMS:
+        {
+            m_items = Client::getAllRecords<Item>().get();
+            break;
+        }
+        case TableType::ORDERS:
+        {
+            m_orders = Client::getAllRecords<Order>().get();
+            break;
+        }
         case TableType::PROVIDERS:
         {
             m_providers = Client::getAllRecords<Provider>().get();
@@ -270,9 +310,25 @@ void TablesView::deleteSelectedRows() noexcept
             break;
         }
         case TableType::ITEMS:
+        {
+            for(const auto& row : tableSelectedRowsMapping)
+            {
+                if(row.second) Client::deleteRecord<Item>(row.first);
+            }
+
+            m_items = Client::getAllRecords<Item>().get();
             break;
+        }
         case TableType::ORDERS:
+        {
+            for(const auto& row : tableSelectedRowsMapping)
+            {
+                if(row.second) Client::deleteRecord<Order>(row.first);
+            }
+
+            m_orders = Client::getAllRecords<Order>().get();
             break;
+        }
         case TableType::PROVIDERS:
         {
             for(const auto& row : tableSelectedRowsMapping)
@@ -395,6 +451,48 @@ void TablesView::initializeSortingSpecsForProviders() const noexcept
 
     SortingSpecs<Provider>::s_sortingFunctions[1] = [](const auto& t0, const auto& t1) noexcept {
         return std::pair { t0.name.size(), t1.name.size() };
+    };
+}
+
+void TablesView::initializeSortingSpecsForItems() const noexcept
+{
+    SortingSpecs<Item>::s_sortingFunctions[0] = [](const auto& t0, const auto& t1) noexcept {
+        return std::pair { t0.id, t1.id };
+    };
+
+    SortingSpecs<Item>::s_sortingFunctions[1] = [](const auto& t0, const auto& t1) noexcept {
+        return std::pair { t0.provider_id, t1.provider_id };
+    };
+
+    SortingSpecs<Item>::s_sortingFunctions[2] = [](const auto& t0, const auto& t1) noexcept {
+        return std::pair { t0.type_info_id, t1.type_info_id };
+    };
+
+    SortingSpecs<Item>::s_sortingFunctions[3] = [](const auto& t0, const auto& t1) noexcept {
+        return std::pair { t0.storage_id, t1.storage_id };
+    };
+}
+
+void TablesView::initializeSortingSpecsForOrders() const noexcept
+{
+    SortingSpecs<Order>::s_sortingFunctions[0] = [](const auto& t0, const auto& t1) noexcept {
+        return std::pair { t0.id, t1.id };
+    };
+
+    SortingSpecs<Order>::s_sortingFunctions[1] = [](const auto& t0, const auto& t1) noexcept {
+        return std::pair { t0.provider_id, t1.provider_id };
+    };
+
+    SortingSpecs<Order>::s_sortingFunctions[2] = [](const auto& t0, const auto& t1) noexcept {
+        return std::pair { t0.item_type_info_id, t1.item_type_info_id };
+    };
+
+    SortingSpecs<Order>::s_sortingFunctions[3] = [](const auto& t0, const auto& t1) noexcept {
+        return std::pair { t0.ordered_count, t1.ordered_count };
+    };
+
+    SortingSpecs<Order>::s_sortingFunctions[4] = [](const auto& t0, const auto& t1) noexcept {
+        return std::pair { t0.cost, t1.cost };
     };
 }
 

@@ -9,6 +9,8 @@
 #include "Models/Offs.h"
 #include "Models/Worker.h"
 #include "Models/Storage.h"
+#include "Models/Item.h"
+#include "Models/ItemTypeInfo.h"
 
 struct UpdateOffWindow : public UpdateRecordWindow<Offs>
 {
@@ -20,6 +22,9 @@ private:
     std::string m_selectedWorkerLogin;
     std::string m_selectedStorageAddress;
 
+    std::vector<Item> m_tmpItems;
+    // first - id
+    std::unordered_map<std::int32_t, ItemTypeInfo> m_tmpItemsTypeInfo;
     std::vector<Worker> m_tmpWorkers;
     std::vector<Storage> m_tmpStorages;
 

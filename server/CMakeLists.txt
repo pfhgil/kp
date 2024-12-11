@@ -9,6 +9,9 @@ set(SERVER_SOURCES
         Controllers/Common.h
         Controllers/OffsController.h
         Controllers/ProvidersController.h
+        Controllers/ItemController.h
+        Controllers/ShipmentsController.h
+        Controllers/OrdersController.h
         )
 
 set(SERVER_EXEC_NAME ${PROJECT_NAME})

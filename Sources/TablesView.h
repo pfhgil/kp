@@ -7,18 +7,25 @@
 
 #include <SGCore/ImGuiWrap/Views/IView.h>
 #include "TableType.h"
+
 #include "Models/Storage.h"
 #include "Models/Worker.h"
 #include "Models/Offs.h"
 #include "Models/Provider.h"
+#include "Models/ItemTypeInfo.h"
+#include "Models/Item.h"
+#include "Models/Order.h"
+
 #include "Update/UpdateWorkerWindow.h"
 #include "Update/UpdateStorageWindow.h"
 #include "Update/UpdateItemTypeInfoWindow.h"
 #include "Update/UpdateOffWindow.h"
 #include "Update/UpdateProviderWindow.h"
+#include "Update/UpdateOrderWindow.h"
+
 #include "SGE/Popup.h"
-#include "Models/ItemTypeInfo.h"
 #include "Reflection/Reflection.h"
+#include "Update/UpdateItemWindow.h"
 
 struct TablesView : public SGCore::ImGuiWrap::IView
 {
@@ -33,6 +40,8 @@ struct TablesView : public SGCore::ImGuiWrap::IView
     std::vector<ItemTypeInfo> m_itemsTypeInfo;
     std::vector<Offs> m_offs;
     std::vector<Provider> m_providers;
+    std::vector<Item> m_items;
+    std::vector<Order> m_orders;
 
     void reloadTable(TableType tableType) noexcept;
     void reloadAllTables() noexcept;
@@ -64,6 +73,16 @@ struct TablesView : public SGCore::ImGuiWrap::IView
         return m_updateProviderWindow;
     }
 
+    [[nodiscard]] auto getUpdateItemWindow() const noexcept
+    {
+        return m_updateItemWindow;
+    }
+
+    [[nodiscard]] auto getUpdateOrderWindow() const noexcept
+    {
+        return m_updateOrderWindow;
+    }
+
 private:
     std::string m_error;
 
@@ -78,6 +97,8 @@ private:
     SGCore::Ref<UpdateItemTypeInfoWindow> m_updateItemTypeInfoWindow;
     SGCore::Ref<UpdateOffWindow> m_updateOffWindow;
     SGCore::Ref<UpdateProviderWindow> m_updateProviderWindow;
+    SGCore::Ref<UpdateItemWindow> m_updateItemWindow;
+    SGCore::Ref<UpdateOrderWindow> m_updateOrderWindow;
 
     SGE::Popup m_rowPopup;
 
@@ -153,7 +174,7 @@ private:
                     }
                     else
                     {
-                        if constexpr(std::is_integral_v<member_t>)
+                        if constexpr(std::is_integral_v<member_t> || std::is_floating_point_v<member_t>)
                         {
                             ImGui::Text(std::to_string(memberInfo.value).c_str());
                         }
@@ -214,11 +235,13 @@ private:
     void initializeSortingSpecsForItemsTypeInfo() const noexcept;
     void initializeSortingSpecsForOffs() const noexcept;
     void initializeSortingSpecsForProviders() const noexcept;
+    void initializeSortingSpecsForItems() const noexcept;
+    void initializeSortingSpecsForOrders() const noexcept;
 
     template<typename T>
     struct SortingSpecs
     {
-        static inline std::unordered_map<std::uint16_t, std::function<std::pair<std::int64_t, std::int64_t>(const T& t0, const T& t1)>> s_sortingFunctions;
+        static inline std::unordered_map<std::uint16_t, std::function<std::pair<float, float>(const T& t0, const T& t1)>> s_sortingFunctions;
     };
 };
 

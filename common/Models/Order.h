@@ -9,6 +9,8 @@
 
 struct Order
 {
+    static const inline std::string s_parentTableName = "orders";
+
     std::int32_t id = 0;
     // FK FROM PROVIDERS
     std::int32_t provider_id = -1;

@@ -16,6 +16,51 @@ void UpdateOffWindow::renderBody() noexcept
         ImGui::TableNextRow();
         {
             ImGui::TableNextColumn();
+            ImGui::Text("Item");
+
+            const auto curSelectedItem = std::find_if(m_tmpItems.begin(), m_tmpItems.end(), [this](const auto& item) {
+                return item.id == m_record.item_id;
+            });
+
+            const auto selectedItemTypeInfo = curSelectedItem != m_tmpItems.end() ?
+                                              m_tmpItemsTypeInfo[curSelectedItem->type_info_id] :
+                                              ItemTypeInfo { };
+
+            ImGui::TableNextColumn();
+            ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 7);
+            ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
+            if(ImGui::BeginCombo("##OffItem",
+                                 selectedItemTypeInfo.id == -1 ? "" :
+                                 fmt::format("ID: {}, Name: '{}', Count: {}",
+                                             m_record.item_id,
+                                             selectedItemTypeInfo.name,
+                                             selectedItemTypeInfo.count).c_str()))
+            {
+                for(const auto& item : m_tmpItems)
+                {
+                    const auto& itemTypeInfo = m_tmpItemsTypeInfo[item.type_info_id];
+
+                    if (ImGui::Selectable(fmt::format("ID: {}, Name: '{}', Count: {}",
+                                                      item.id,
+                                                      itemTypeInfo.name,
+                                                      itemTypeInfo.count).c_str(), m_record.item_id == item.id))
+                    {
+                        m_record.item_id = item.id;
+                    }
+
+                    if (m_record.item_id == item.id)
+                    {
+                        ImGui::SetItemDefaultFocus();
+                    }
+                }
+
+                ImGui::EndCombo();
+            }
+        }
+
+        ImGui::TableNextRow();
+        {
+            ImGui::TableNextColumn();
             ImGui::Text("Worker");
 
             ImGui::TableNextColumn();
@@ -90,16 +135,26 @@ void UpdateOffWindow::onActiveChangedListener() noexcept
 {
     UpdateRecordWindow::onActiveChangedListener();
 
+    m_tmpItemsTypeInfo = { };
+
     if(isActive())
     {
+        // m_selectedItem = Client::getRecordByID<Item>(m_record.item_id).get();
         m_selectedWorkerLogin = Client::getRecordByID<Worker>(m_record.worker_id).get().login;
         m_selectedStorageAddress = Client::getRecordByID<Storage>(m_record.storage_id).get().address;
 
+        m_tmpItems = Client::getAllRecords<Item>().get();
+        auto itemsTypeInfo = Client::getAllRecords<ItemTypeInfo>().get();
+        for(auto&& itemTypeInfo : itemsTypeInfo)
+        {
+            m_tmpItemsTypeInfo[itemTypeInfo.id] = std::move(itemTypeInfo);
+        }
         m_tmpWorkers = Client::getAllRecords<Worker>().get();
         m_tmpStorages = Client::getAllRecords<Storage>().get();
     }
     else
     {
+        // m_selectedItem = { };
         m_selectedWorkerLogin = "";
         m_selectedStorageAddress = "";
     }
@@ -122,6 +177,12 @@ void UpdateOffWindow::submit() noexcept
     if(m_record.reason.empty())
     {
         m_errorMessage = "Please, write reason!";
+        return;
+    }
+
+    if(m_record.item_id == -1)
+    {
+        m_errorMessage = "Please, select item!";
         return;
     }
 

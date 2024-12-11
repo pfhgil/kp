@@ -9,6 +9,8 @@
 
 struct Shipment
 {
+    static const inline std::string s_parentTableName = "shipments";
+
     std::int32_t id = 0;
     // FK FROM STORAGES
     std::int32_t storage_id = -1;

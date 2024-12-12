@@ -22,6 +22,7 @@
 #include "Update/UpdateOffWindow.h"
 #include "Update/UpdateProviderWindow.h"
 #include "Update/UpdateOrderWindow.h"
+#include "Update/UpdateShipmentWindow.h"
 
 #include "SGE/Popup.h"
 #include "Reflection/Reflection.h"
@@ -42,6 +43,7 @@ struct TablesView : public SGCore::ImGuiWrap::IView
     std::vector<Provider> m_providers;
     std::vector<Item> m_items;
     std::vector<Order> m_orders;
+    std::vector<Shipment> m_shipments;
 
     void reloadTable(TableType tableType) noexcept;
     void reloadAllTables() noexcept;
@@ -83,6 +85,11 @@ struct TablesView : public SGCore::ImGuiWrap::IView
         return m_updateOrderWindow;
     }
 
+    [[nodiscard]] auto getUpdateShipmentWindow() const noexcept
+    {
+        return m_updateShipmentWindow;
+    }
+
 private:
     std::string m_error;
 
@@ -99,6 +106,7 @@ private:
     SGCore::Ref<UpdateProviderWindow> m_updateProviderWindow;
     SGCore::Ref<UpdateItemWindow> m_updateItemWindow;
     SGCore::Ref<UpdateOrderWindow> m_updateOrderWindow;
+    SGCore::Ref<UpdateShipmentWindow> m_updateShipmentWindow;
 
     SGE::Popup m_rowPopup;
 
@@ -237,6 +245,7 @@ private:
     void initializeSortingSpecsForProviders() const noexcept;
     void initializeSortingSpecsForItems() const noexcept;
     void initializeSortingSpecsForOrders() const noexcept;
+    void initializeSortingSpecsForShipments() const noexcept;
 
     template<typename T>
     struct SortingSpecs

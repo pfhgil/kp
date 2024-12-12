@@ -31,7 +31,7 @@ namespace api
 
         void addProvidersHandler(const drogon::HttpRequestPtr& request, Utils::callback_t&& callback)
         {
-            Common::addRecord<Provider, 1>
+            Common::addRecord<Provider, "name">
                     (request, std::forward<Utils::callback_t>(callback),
                      "INSERT INTO providers (id, name) "
                      "VALUES (DEFAULT, $1) RETURNING id");
@@ -44,7 +44,7 @@ namespace api
 
         void updateProviderByIDHandler(const drogon::HttpRequestPtr& request, Utils::callback_t&& callback, std::int32_t id)
         {
-            Common::updateRecordByID<Provider, 1>(
+            Common::updateRecordByID<Provider, "name">(
                     request, std::forward<Utils::callback_t>(callback),
                     "UPDATE providers SET name = $1 WHERE id = $2", id);
         }

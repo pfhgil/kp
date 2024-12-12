@@ -33,7 +33,7 @@ namespace api
 
         void addItemHandler(const drogon::HttpRequestPtr& request, Utils::callback_t&& callback)
         {
-            Common::addRecord<Item, 1, 2, 3>
+            Common::addRecord<Item, "provider_id", "type_info_id", "storage_id">
                     (request, std::forward<Utils::callback_t>(callback),
                      "INSERT INTO items (id, provider_id, type_info_id, storage_id) "
                      "VALUES (DEFAULT, $1, $2, $3) RETURNING id");
@@ -46,7 +46,7 @@ namespace api
 
         void updateItemByIDHandler(const drogon::HttpRequestPtr& request, Utils::callback_t&& callback, std::int32_t id)
         {
-            Common::updateRecordByID<Item, 1, 2, 3>(
+            Common::updateRecordByID<Item, "provider_id", "type_info_id", "storage_id">(
                     request, std::forward<Utils::callback_t>(callback),
                     "UPDATE items SET provider_id = $1, type_info_id = $2, storage_id = $3 WHERE id = $4", id);
         }

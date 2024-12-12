@@ -33,7 +33,7 @@ namespace api
 
         void addOffHandler(const drogon::HttpRequestPtr& request, Utils::callback_t&& callback)
         {
-            Common::addRecord<Offs, 1, 2, 3, 4>
+            Common::addRecord<Offs, "item_id", "worker_id", "reason", "storage_id">
                     (request, std::forward<Utils::callback_t>(callback),
                      "INSERT INTO offs (id, item_id, worker_id, reason, storage_id) "
                      "VALUES (DEFAULT, $1, $2, $3, $4) RETURNING id");
@@ -46,7 +46,7 @@ namespace api
 
         void updateOffByIDHandler(const drogon::HttpRequestPtr& request, Utils::callback_t&& callback, std::int32_t id)
         {
-            Common::updateRecordByID<Offs, 1, 2, 3, 4>(
+            Common::updateRecordByID<Offs, "item_id", "worker_id", "reason", "storage_id">(
                     request, std::forward<Utils::callback_t>(callback),
                     "UPDATE offs SET item_id = $1, worker_id = $2, reason = $3, storage_id = $4 WHERE id = $5", id);
         }

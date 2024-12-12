@@ -32,7 +32,7 @@ namespace api
 
         void addItemTypeInfoHandler(const drogon::HttpRequestPtr& request, Utils::callback_t&& callback)
         {
-            Common::addRecord<ItemTypeInfo, 1, 2, 3, 4, 5>
+            Common::addRecord<ItemTypeInfo, "name", "count", "date_of_receipt", "expiration_date", "production_date">
                     (request, std::forward<Utils::callback_t>(callback),
                      "INSERT INTO item_type_info (id, name, count, date_of_receipt, expiration_date, production_date) "
                      "VALUES (DEFAULT, $1, $2, $3, $4, $5) RETURNING id");
@@ -45,7 +45,7 @@ namespace api
 
         void updateItemTypeInfoByIDHandler(const drogon::HttpRequestPtr& request, Utils::callback_t&& callback, std::int32_t id)
         {
-            Common::updateRecordByID<ItemTypeInfo, 1, 2, 3, 4, 5>(
+            Common::updateRecordByID<ItemTypeInfo, "name", "count", "date_of_receipt", "expiration_date", "production_date">(
                     request, std::forward<Utils::callback_t>(callback),
                     "UPDATE item_type_info SET name = $1, count = $2, date_of_receipt = $3, "
                     "expiration_date = $4, production_date = $5 WHERE id = $6", id);

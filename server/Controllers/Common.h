@@ -16,7 +16,7 @@ namespace api
 {
     struct Common
     {
-        template<typename T, size_t... FieldsIdx>
+        template<typename T, basic_constexpr_string... FieldsNames>
         static void addRecord(const drogon::HttpRequestPtr& request, Utils::callback_t&& callback,
                               const std::string& sql) noexcept
         {
@@ -56,10 +56,10 @@ namespace api
                                        std::cerr << req << std::endl;
                                        Utils::sendResponse(req, drogon::HttpStatusCode::k400BadRequest, callback);
                                    },
-                                   meta.template get<FieldsIdx>().value...);
+                                   meta.template getByName<FieldsNames>().value...);
         }
 
-        template<typename T, size_t... FieldsIdx>
+        template<typename T, basic_constexpr_string... FieldsNames>
         static void updateRecordByID(const drogon::HttpRequestPtr& request, Utils::callback_t&& callback,
                                     const std::string& sql, const std::int32_t& id) noexcept
         {
@@ -90,7 +90,7 @@ namespace api
                                        std::cerr << req << std::endl;
                                        Utils::sendResponse(req, drogon::HttpStatusCode::k400BadRequest, callback);
                                    },
-                                   meta.template get<FieldsIdx>().value...,
+                                   meta.template getByName<FieldsNames>().value...,
                                    id);
         }
 
@@ -192,7 +192,7 @@ namespace api
 
                                            auto meta = makeMetaInfo(value);
 
-                                           meta.iterateThroughMembers([&result, &resVal](auto member) {
+                                           meta.iterateThroughMembers([&resVal](auto member) {
                                                using member_t = decltype(member)::member_t;
 
                                                if constexpr (std::is_enum_v<member_t>)

@@ -32,7 +32,7 @@ namespace api
 
         void addStorageHandler(const drogon::HttpRequestPtr& request, Utils::callback_t&& callback)
         {
-            Common::addRecord<Storage, 1>
+            Common::addRecord<Storage, "address">
                     (request, std::forward<Utils::callback_t>(callback),
                      "INSERT INTO storages (id, address) "
                      "VALUES (DEFAULT, $1) RETURNING id");
@@ -45,7 +45,7 @@ namespace api
 
         void updateStorageByIDHandler(const drogon::HttpRequestPtr& request, Utils::callback_t&& callback, std::int32_t id)
         {
-            Common::updateRecordByID<Storage, 1>(
+            Common::updateRecordByID<Storage, "address">(
                     request, std::forward<Utils::callback_t>(callback),
                     "UPDATE storages SET address = $1 WHERE id = $2", id);
         }

@@ -31,7 +31,7 @@ namespace api
 
         void addWorkerHandler(const drogon::HttpRequestPtr& request, Utils::callback_t&& callback)
         {
-            Common::addRecord<Worker, 1, 2, 3, 4, 5, 6, 7>
+            Common::addRecord<Worker, "name", "surname", "patronymic", "role", "storage_id", "login", "password">
                     (request, std::forward<Utils::callback_t>(callback),
                      "INSERT INTO staff (id, name, surname, patronymic, role, storage_id, login, password) "
                      "VALUES (DEFAULT, $1, $2, $3, $4, $5, $6, $7) RETURNING id, name");
@@ -59,7 +59,7 @@ namespace api
 
         void updateWorkerHandler(const drogon::HttpRequestPtr& request, Utils::callback_t&& callback, std::int32_t id)
         {
-            Common::updateRecordByID<Worker, 1, 2, 3, 4, 5, 6, 7>(
+            Common::updateRecordByID<Worker, "name", "surname", "patronymic", "role", "storage_id", "login", "password">(
                     request, std::forward<Utils::callback_t>(callback),
                     "UPDATE staff SET name = $1, surname = $2, patronymic = $3, "
                     "role = $4, storage_id = $5, login = $6, password = $7 WHERE id = $8", id);

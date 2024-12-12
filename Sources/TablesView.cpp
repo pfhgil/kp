@@ -53,7 +53,14 @@ TablesView::TablesView() noexcept
                     break;
                 }
                 case TableType::SHIPMENTS:
+                {
+                    auto editableShipment = Client::getRecordByID<Shipment>(m_rightClickedRowID).get();
+                    m_updateShipmentWindow->setTableUpdateType(TableUpdateType::UPDATE);
+                    m_updateShipmentWindow->m_record = editableShipment;
+                    m_updateShipmentWindow->setActive(true);
+
                     break;
+                }
                 case TableType::ITEM_TYPE_INFO:
                 {
                     auto editableItemTypeInfo = Client::getRecordByID<ItemTypeInfo>(m_rightClickedRowID).get();
@@ -129,6 +136,11 @@ TablesView::TablesView() noexcept
 
     addChild(m_updateOrderWindow);
 
+    m_updateShipmentWindow = SGCore::MakeRef<UpdateShipmentWindow>();
+    m_updateShipmentWindow->setActive(false);
+
+    addChild(m_updateShipmentWindow);
+
     m_selectedRows.resize(static_cast<int>(TableType::COUNT));
 
     reloadAllTables();
@@ -140,6 +152,7 @@ TablesView::TablesView() noexcept
     initializeSortingSpecsForProviders();
     initializeSortingSpecsForItems();
     initializeSortingSpecsForOrders();
+    initializeSortingSpecsForShipments();
 }
 
 void TablesView::renderBody() noexcept
@@ -158,7 +171,7 @@ void TablesView::renderBody() noexcept
 
     ImGui::Begin("Table");
 
-    ImGui::TextColored({ 1.0, 0.0, 0.0, 1.0 }, m_error.c_str());
+    // ImGui::TextColored({ 1.0, 0.0, 0.0, 1.0 }, m_error.c_str());
 
     ImGui::BeginChildFrame(ImGui::GetID("TableChild"), ImGui::GetContentRegionAvail());
 
@@ -179,7 +192,11 @@ void TablesView::renderBody() noexcept
             drawTable(m_storages);
             break;
         }
-        case TableType::SHIPMENTS:break;
+        case TableType::SHIPMENTS:
+        {
+            drawTable(m_shipments);
+            break;
+        }
         case TableType::ITEM_TYPE_INFO:
         {
             drawTable(m_itemsTypeInfo);
@@ -226,7 +243,11 @@ void TablesView::reloadTable(TableType tableType) noexcept
             m_storages = Client::getAllRecords<Storage>().get();
             break;
         }
-        case TableType::SHIPMENTS:break;
+        case TableType::SHIPMENTS:
+        {
+            m_shipments = Client::getAllRecords<Shipment>().get();
+            break;
+        }
         case TableType::ITEM_TYPE_INFO:
         {
             m_itemsTypeInfo = Client::getAllRecords<ItemTypeInfo>().get();
@@ -298,7 +319,15 @@ void TablesView::deleteSelectedRows() noexcept
             break;
         }
         case TableType::SHIPMENTS:
+        {
+            for(const auto& row : tableSelectedRowsMapping)
+            {
+                if(row.second) Client::deleteRecord<Shipment>(row.first);
+            }
+
+            m_shipments = Client::getAllRecords<Shipment>().get();
             break;
+        }
         case TableType::ITEM_TYPE_INFO:
         {
             for(const auto& row : tableSelectedRowsMapping)
@@ -493,6 +522,25 @@ void TablesView::initializeSortingSpecsForOrders() const noexcept
 
     SortingSpecs<Order>::s_sortingFunctions[4] = [](const auto& t0, const auto& t1) noexcept {
         return std::pair { t0.cost, t1.cost };
+    };
+}
+
+void TablesView::initializeSortingSpecsForShipments() const noexcept
+{
+    SortingSpecs<Shipment>::s_sortingFunctions[0] = [](const auto& t0, const auto& t1) noexcept {
+        return std::pair { t0.id, t1.id };
+    };
+
+    SortingSpecs<Shipment>::s_sortingFunctions[1] = [](const auto& t0, const auto& t1) noexcept {
+        return std::pair { t0.storage_id, t1.storage_id };
+    };
+
+    SortingSpecs<Shipment>::s_sortingFunctions[2] = [](const auto& t0, const auto& t1) noexcept {
+        return std::pair { t0.worker_id, t1.worker_id };
+    };
+
+    SortingSpecs<Shipment>::s_sortingFunctions[3] = [](const auto& t0, const auto& t1) noexcept {
+        return std::pair { t0.order_id, t1.order_id };
     };
 }
 

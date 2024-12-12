@@ -37,6 +37,92 @@ SOFTWARE.
 
 // некоторые фокусы
 
+template<auto>
+struct always_false_obj : std::false_type { };
+
+template<size_t Size, typename CharT>
+struct basic_constexpr_string
+{
+    using char_t = CharT;
+    static constexpr inline size_t size_v = Size;
+
+    CharT data[Size] { };
+
+    consteval basic_constexpr_string(const CharT (&str)[Size])
+    {
+        std::copy_n(str, Size, data);
+    }
+
+    consteval bool operator==(const basic_constexpr_string<Size, CharT> str) const
+    {
+        return std::equal(str.data, str.data + Size, data);
+    }
+
+    template<std::size_t N2>
+    consteval bool operator==(const basic_constexpr_string<N2, CharT> s) const
+    {
+        return false;
+    }
+
+    template<std::size_t Size2>
+    consteval basic_constexpr_string<Size + Size2 - 1, CharT> operator+(const basic_constexpr_string<Size2, CharT> str) const
+    {
+        CharT newBuf[Size + Size2 - 1] {};
+        std::copy_n(data, Size - 1, newBuf);
+        std::copy_n(str.data, Size2, newBuf + Size - 1);
+        return newBuf;
+    }
+
+    consteval char operator[](std::size_t n) const
+    {
+        return data[n];
+    }
+
+    [[nodiscard]] consteval std::size_t size() const
+    {
+        return Size - 1;
+    }
+};
+
+template<std::size_t Size1, std::size_t Size2, typename CharT>
+consteval auto operator+(basic_constexpr_string<Size1, CharT> fs, const CharT (&str) [Size2])
+{
+    return fs + basic_constexpr_string<Size2, CharT>(str);
+}
+
+template<std::size_t Size1, std::size_t Size2, typename CharT>
+consteval auto operator+(const CharT (&str) [Size2], basic_constexpr_string<Size1, CharT> fs)
+{
+    return basic_constexpr_string<Size2, CharT>(str) + fs;
+}
+
+template<std::size_t Size1, std::size_t Size2, typename CharT>
+consteval auto operator==(basic_constexpr_string<Size1, CharT> fs, const CharT (&str) [Size2])
+{
+    return fs == basic_constexpr_string<Size2, CharT>(str);
+}
+
+template<std::size_t Size1, std::size_t Size2, typename CharT>
+consteval auto operator==(const CharT (&str) [Size2], basic_constexpr_string<Size1, CharT> fs)
+{
+    return basic_constexpr_string<Size2, CharT>(str) == fs;
+}
+
+template<std::size_t Size, typename CharT>
+consteval auto operator==(basic_constexpr_string<Size, CharT> fs, const std::basic_string_view<CharT>& sv)
+{
+    return sv == fs.data;
+}
+
+template<std::size_t Size, typename CharT>
+consteval auto operator==(const std::basic_string_view<CharT>& sv, basic_constexpr_string<Size, CharT> fs)
+{
+    return sv == fs.data;
+}
+
+template<size_t Size>
+using constexpr_string = basic_constexpr_string<Size, char>;
+
 template<class T, template <class...> class Template>
 struct is_specialization : std::false_type {};
 
@@ -536,6 +622,12 @@ struct MetaInfo
         return std::get<Idx>(members);
     }
 
+    template<basic_constexpr_string Name>
+    constexpr auto& getByName() const noexcept
+    {
+        return getByNameImpl<Name, 0>();
+    }
+
     template<typename Func>
     constexpr void iterateThroughMembers(const Func& func) const
     {
@@ -554,6 +646,26 @@ struct MetaInfo
     }
 
 private:
+    template<basic_constexpr_string Name, size_t MemberIdx>
+    constexpr auto& getByNameImpl() const noexcept
+    {
+        if constexpr(MemberIdx == members_count)
+        {
+            static_assert(always_false_obj<MemberIdx>::value, "Can not find member with this name!");
+        }
+        else
+        {
+            if constexpr(Name == std::remove_reference_t<decltype(get<MemberIdx>())>::unmangled_name)
+            {
+                return get<MemberIdx>();
+            }
+            else
+            {
+                return getByNameImpl<Name, MemberIdx + 1>();
+            }
+        }
+    }
+
     template<typename Func, size_t CurIdx>
     void iterateThroughMembersImpl(const Func& func) const
     {

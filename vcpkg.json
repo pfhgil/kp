@@ -70,5 +70,8 @@
      "name": "jwt-cpp"
   }, {
      "name": "openssl"
+  }, {
+    "name" : "nativefiledialog",
+    "version>=" : "2022-01-20"
   }]
 }

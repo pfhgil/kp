@@ -165,6 +165,18 @@ void SGE::EditorStyles::Dark::apply()
         m_dateIcon = SGCore::AssetManager::getInstance()->loadAssetWithAlias<SGCore::SVGImage>(
                 "white_date_icon",
                 "${projectPath}/Resources/icons/dark_style/date.svg");
+
+        m_exportIcon = SGCore::AssetManager::getInstance()->loadAssetWithAlias<SGCore::SVGImage>(
+                "export_icon",
+                "${projectPath}/Resources/icons/dark_style/export.svg");
+
+        m_importIcon = SGCore::AssetManager::getInstance()->loadAssetWithAlias<SGCore::SVGImage>(
+                "import_icon",
+                "${projectPath}/Resources/icons/dark_style/import.svg");
+
+        m_folderIcon = SGCore::AssetManager::getInstance()->loadAssetWithAlias<SGCore::SVGImage>(
+                "folder_icon",
+                "${projectPath}/Resources/icons/dark_style/folder.svg");
     }
 }
 

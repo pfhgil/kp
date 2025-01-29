@@ -14,9 +14,14 @@ MainView::MainView() noexcept
     m_tablesView = SGCore::MakeRef<TablesView>();
     m_tablesView->m_name = "TABLES";
 
+    m_fileCreateDialog = SGCore::MakeRef<SGE::FileCreateDialog>();
+    m_fileCreateDialog->setActive(false);
+    m_fileCreateDialog->m_name = "FILE_CREATE";
+
     addChild(m_tablesView);
     addChild(m_loginWindow);
     addChild(m_toolbarView);
+    addChild(m_fileCreateDialog);
 }
 
 void MainView::renderBody() noexcept
@@ -27,5 +32,10 @@ void MainView::renderBody() noexcept
 SGCore::Ref<TablesView> MainView::getTablesView() const noexcept
 {
     return m_tablesView;
+}
+
+SGCore::Ref<SGE::FileCreateDialog> MainView::getFileCreateDialog() const noexcept
+{
+    return m_fileCreateDialog;
 }
 

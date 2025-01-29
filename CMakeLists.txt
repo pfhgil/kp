@@ -53,6 +53,7 @@ include($ENV{SUNGEAR_SOURCES_ROOT}/cmake/SungearEngineInclude.cmake)
 
 find_package(PostgreSQL REQUIRED)
 find_package(Drogon CONFIG REQUIRED)
+find_package(unofficial-nativefiledialog CONFIG REQUIRED)
 
 add_subdirectory(server)
 
@@ -61,4 +62,4 @@ message(${COMMON_SOURCES})
 add_executable(${PROJECT_NAME} ${MY_SOURCES} ${COMMON_SOURCES})
 
 target_include_directories(${PROJECT_NAME} PRIVATE common Sources ${SungearEngine_INCLUDE_DIRS})
-target_link_libraries(${PROJECT_NAME} PUBLIC ${SungearEngine_LIBS} Drogon::Drogon PostgreSQL::PostgreSQL)
+target_link_libraries(${PROJECT_NAME} PUBLIC ${SungearEngine_LIBS} Drogon::Drogon PostgreSQL::PostgreSQL unofficial::nativefiledialog::nfd)

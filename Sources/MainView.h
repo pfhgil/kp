@@ -7,6 +7,7 @@
 
 #include <SGCore/ImGuiWrap/Views/IView.h>
 #include "SGE/TopToolbarView.h"
+#include "SGE/FileCreateDialog.h"
 #include "TablesView.h"
 #include "LoginWindow.h"
 
@@ -17,6 +18,7 @@ struct MainView : SGCore::ImGuiWrap::IView
     void renderBody() noexcept final;
 
     [[nodiscard]] SGCore::Ref<TablesView> getTablesView() const noexcept;
+    [[nodiscard]] SGCore::Ref<SGE::FileCreateDialog> getFileCreateDialog() const noexcept;
 
 private:
     ImGuiID m_dockID = 0;
@@ -24,6 +26,7 @@ private:
     SGCore::Ref<SGE::TopToolbarView> m_toolbarView;
     SGCore::Ref<TablesView> m_tablesView;
     SGCore::Ref<LoginWindow> m_loginWindow;
+    SGCore::Ref<SGE::FileCreateDialog> m_fileCreateDialog;
 };
 
 #endif //PROJ3_MAINVIEW_H

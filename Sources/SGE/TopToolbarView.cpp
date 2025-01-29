@@ -9,7 +9,6 @@
 #include "Styles/StylesManager.h"
 #include "main.h"
 #include "TablesView.h"
-#include "Client.h"
 
 SGE::TopToolbarView::TopToolbarView()
 {
@@ -93,6 +92,18 @@ SGE::TopToolbarView::TopToolbarView()
                             .m_text = "Reload",
                             .m_ID = "Edit/ReloadTable",
                             .m_icon = StylesManager::getCurrentStyle()->m_reloadIcon->getSpecialization(18,
+                                                                                                        18)->getTexture()
+                    },
+                    {
+                            .m_text = "Export",
+                            .m_ID = "Edit/Export",
+                            .m_icon = StylesManager::getCurrentStyle()->m_exportIcon->getSpecialization(18,
+                                                                                                        18)->getTexture()
+                    },
+                    {
+                            .m_text = "Import",
+                            .m_ID = "Edit/Import",
+                            .m_icon = StylesManager::getCurrentStyle()->m_importIcon->getSpecialization(18,
                                                                                                         18)->getTexture()
                     }
             }
@@ -219,6 +230,143 @@ SGE::TopToolbarView::TopToolbarView()
         else if(element->m_ID == "Edit/ReloadTable")
         {
             Main::getMainView()->getTablesView()->reloadTable(Main::getMainView()->getTablesView()->m_tableType);
+        }
+        else if(element->m_ID == "Edit/Export")
+        {
+            auto fileCreateDialog = Main::getMainView()->getFileCreateDialog();
+
+            fileCreateDialog->m_name = "Export Table";
+            fileCreateDialog->m_mode = FileOpenMode::CREATE;
+            fileCreateDialog->m_ext = ".json";
+            fileCreateDialog->setActive(true);
+
+            fileCreateDialog->onOperationEnd = [](const std::filesystem::path& byPath, bool canceled) {
+                if(canceled) return;
+
+                std::string jsonContent;
+
+                switch(Main::getMainView()->getTablesView()->m_tableType)
+                {
+                    case TableType::STAFF:
+                    {
+                        jsonContent =
+                                SGCore::Serde::Serializer::toFormat(Main::getMainView()->getTablesView()->m_workers);
+                        break;
+                    }
+                    case TableType::OFFS:
+                    {
+                        jsonContent =
+                                SGCore::Serde::Serializer::toFormat(Main::getMainView()->getTablesView()->m_offs);
+                        break;
+                    }
+                    case TableType::STORAGES:
+                    {
+                        jsonContent =
+                                SGCore::Serde::Serializer::toFormat(Main::getMainView()->getTablesView()->m_storages);
+                        break;
+                    }
+                    case TableType::SHIPMENTS:
+                    {
+                        jsonContent =
+                                SGCore::Serde::Serializer::toFormat(Main::getMainView()->getTablesView()->m_shipments);
+                        break;
+                    }
+                    case TableType::ITEM_TYPE_INFO:
+                    {
+                        jsonContent =
+                                SGCore::Serde::Serializer::toFormat(Main::getMainView()->getTablesView()->m_itemsTypeInfo);
+                        break;
+                    }
+                    case TableType::ITEMS:
+                    {
+                        jsonContent =
+                                SGCore::Serde::Serializer::toFormat(Main::getMainView()->getTablesView()->m_items);
+                        break;
+                    }
+                    case TableType::ORDERS:
+                    {
+                        jsonContent =
+                                SGCore::Serde::Serializer::toFormat(Main::getMainView()->getTablesView()->m_orders);
+                        break;
+                    }
+                    case TableType::PROVIDERS:
+                    {
+                        jsonContent =
+                                SGCore::Serde::Serializer::toFormat(Main::getMainView()->getTablesView()->m_providers);
+                        break;
+                    }
+                }
+
+                SGCore::FileUtils::writeToFile(byPath, jsonContent, false, true);
+            };
+        }
+        else if(element->m_ID == "Edit/Import")
+        {
+            auto fileCreateDialog = Main::getMainView()->getFileCreateDialog();
+
+            fileCreateDialog->m_name = "Import Table";
+            fileCreateDialog->m_mode = FileOpenMode::OPEN;
+            fileCreateDialog->setActive(true);
+
+            fileCreateDialog->onOperationEnd = [](const std::filesystem::path& byPath, bool canceled) {
+                if (canceled) return;
+
+                const std::string jsonContent = SGCore::FileUtils::readFile(byPath);
+
+                switch(Main::getMainView()->getTablesView()->m_tableType)
+                {
+                    case TableType::STAFF:
+                    {
+                        importData<Worker>(jsonContent);
+
+                        break;
+                    }
+                    case TableType::OFFS:
+                    {
+                        importData<Offs>(jsonContent);
+
+                        break;
+                    }
+                    case TableType::STORAGES:
+                    {
+                        importData<Storage>(jsonContent);
+
+                        break;
+                    }
+                    case TableType::SHIPMENTS:
+                    {
+                        importData<Shipment>(jsonContent);
+
+                        break;
+                    }
+                    case TableType::ITEM_TYPE_INFO:
+                    {
+                        importData<ItemTypeInfo>(jsonContent);
+
+                        break;
+                    }
+                    case TableType::ITEMS:
+                    {
+                        importData<Item>(jsonContent);
+
+                        break;
+                    }
+                    case TableType::ORDERS:
+                    {
+                        importData<Order>(jsonContent);
+
+                        break;
+                    }
+                    case TableType::PROVIDERS:
+                    {
+                        importData<Provider>(jsonContent);
+
+                        break;
+                    }
+                }
+
+                Main::getMainView()->getTablesView()->reloadTable(Main::getMainView()->getTablesView()->m_tableType);
+            };
         }
     };
 

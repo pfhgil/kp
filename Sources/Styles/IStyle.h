@@ -63,6 +63,8 @@ namespace SGE
         SGCore::AssetRef<SGCore::SVGImage> m_greenBugIcon;
         SGCore::AssetRef<SGCore::SVGImage> m_greenDebugRun;
         SGCore::AssetRef<SGCore::SVGImage> m_reloadIcon;
+        SGCore::AssetRef<SGCore::SVGImage> m_exportIcon;
+        SGCore::AssetRef<SGCore::SVGImage> m_importIcon;
 
         SGCore::AssetRef<SGCore::SVGImage> m_dateIcon;
 

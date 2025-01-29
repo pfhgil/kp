@@ -295,7 +295,8 @@ void TablesView::deleteSelectedRows() noexcept
                 if(row.second) Client::deleteRecord<Worker>(row.first);
             }
 
-            m_workers = Client::getAllRecords<Worker>().get();
+            // m_workers = Client::getAllRecords<Worker>().get();
+            reloadAllTables();
             break;
         }
         case TableType::OFFS:
@@ -305,7 +306,8 @@ void TablesView::deleteSelectedRows() noexcept
                 if (row.second) Client::deleteRecord<Offs>(row.first);
             }
 
-            m_offs = Client::getAllRecords<Offs>().get();
+            // m_offs = Client::getAllRecords<Offs>().get();
+            reloadAllTables();
             break;
         }
         case TableType::STORAGES:
@@ -315,7 +317,8 @@ void TablesView::deleteSelectedRows() noexcept
                 if(row.second) Client::deleteRecord<Storage>(row.first);
             }
 
-            m_storages = Client::getAllRecords<Storage>().get();
+            // m_storages = Client::getAllRecords<Storage>().get();
+            reloadAllTables();
             break;
         }
         case TableType::SHIPMENTS:
@@ -325,7 +328,8 @@ void TablesView::deleteSelectedRows() noexcept
                 if(row.second) Client::deleteRecord<Shipment>(row.first);
             }
 
-            m_shipments = Client::getAllRecords<Shipment>().get();
+            // m_shipments = Client::getAllRecords<Shipment>().get();
+            reloadAllTables();
             break;
         }
         case TableType::ITEM_TYPE_INFO:
@@ -335,7 +339,8 @@ void TablesView::deleteSelectedRows() noexcept
                 if(row.second) Client::deleteRecord<ItemTypeInfo>(row.first);
             }
 
-            m_itemsTypeInfo = Client::getAllRecords<ItemTypeInfo>().get();
+            // m_itemsTypeInfo = Client::getAllRecords<ItemTypeInfo>().get();
+            reloadAllTables();
             break;
         }
         case TableType::ITEMS:
@@ -345,7 +350,8 @@ void TablesView::deleteSelectedRows() noexcept
                 if(row.second) Client::deleteRecord<Item>(row.first);
             }
 
-            m_items = Client::getAllRecords<Item>().get();
+            // m_items = Client::getAllRecords<Item>().get();
+            reloadAllTables();
             break;
         }
         case TableType::ORDERS:
@@ -355,7 +361,8 @@ void TablesView::deleteSelectedRows() noexcept
                 if(row.second) Client::deleteRecord<Order>(row.first);
             }
 
-            m_orders = Client::getAllRecords<Order>().get();
+            // m_orders = Client::getAllRecords<Order>().get();
+            reloadAllTables();
             break;
         }
         case TableType::PROVIDERS:
@@ -365,7 +372,8 @@ void TablesView::deleteSelectedRows() noexcept
                 if(row.second) Client::deleteRecord<Provider>(row.first);
             }
 
-            m_providers = Client::getAllRecords<Provider>().get();
+            // m_providers = Client::getAllRecords<Provider>().get();
+            reloadAllTables();
             break;
         }
     }

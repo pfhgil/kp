@@ -44,6 +44,15 @@ struct Client
     }
 
     template<typename T>
+    static void addRecords(const std::vector<T>& values) noexcept
+    {
+        for(const auto& v : values)
+        {
+            addRecord(v);
+        }
+    }
+
+    template<typename T>
     static void updateRecord(const std::int32_t& id, const T& value) noexcept
     {
         Json::Value json;
